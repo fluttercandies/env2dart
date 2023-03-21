@@ -1,4 +1,4 @@
-# Envgen
+# Env2dart
 
 English | [简体中文](README-ZH.md)
 
@@ -9,13 +9,13 @@ A simple way to generate `dart` code from a `.env` file.
 1. Install the command-line tool:
 
 ```shell
-dart pub global activate envgen
+dart pub global activate env2dart
 ```
 
 2. Execute the following command in your project directory:
 
 ```shell
-envgen
+env2dart
 ```
 
 ## Command-line Arguments

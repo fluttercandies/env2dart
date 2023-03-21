@@ -137,7 +137,7 @@ void _mergeActive(
 }
 
 void envgen({
-  required String output,
+  String? output,
   required String path,
   String? active,
   required String clazz,

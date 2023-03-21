@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:envgen/antlr/EnvBaseVisitor.dart';
-import 'package:envgen/antlr/EnvParser.dart';
+import 'antlr/EnvBaseVisitor.dart';
+import 'antlr/EnvParser.dart';
 
 class DefaultVisitor extends EnvBaseVisitor {
   final pairs = <String, Pair>{};

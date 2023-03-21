@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="gen" type="ShConfigurationType">
+  <configuration default="false" name="gen_antlr" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="java -jar ./antlr/antlr-4.12.0-complete.jar -o ./lib -visitor -no-listener -Dlanguage=Dart ./antlr/Env.g4" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />

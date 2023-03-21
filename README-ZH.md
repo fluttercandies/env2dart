@@ -1,4 +1,4 @@
-# Envgen
+# Env2dart
 
 [English](README.md) | 简体中文
 
@@ -9,13 +9,13 @@
 1. 安装命令行工具
 
 ```shell
-dart pub global activate envgen
+dart pub global activate env2dart
 ```
 
 2. 在项目目录下执行命令
 
 ```shell
-envgen
+env2dart
 ```
 
 ## 命令行参数
