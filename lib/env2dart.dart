@@ -5,6 +5,7 @@ import 'package:args/args.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:dolumns/dolumns.dart';
 import 'package:path/path.dart' as path;
 import 'package:recase/recase.dart';
 
@@ -18,7 +19,6 @@ EnvParser _newParser(String contents) {
   var tokens = CommonTokenStream(lexer);
   var parser = EnvParser(tokens);
   parser.addErrorListener(DiagnosticErrorListener());
-  parser.buildParseTree = true;
   return parser;
 }
 
@@ -93,6 +93,16 @@ void _codegen(
     output = "$output.dart";
   }
   File(output).writeAsStringSync(code);
+  var columns =
+      pairs.values.map((e) => <Object>[e.type, e.name, e.value ?? '']).toList();
+  columns.insert(0, ["TYPE", "KEY", "VALUE"]);
+  var pretty = dolumnify(
+    columns,
+    columnSplitter: ' | ',
+    headerIncluded: true,
+    headerSeparator: '=',
+  );
+  print(pretty);
 }
 
 Map<String, Pair> _toPairs(Directory dir, String file) {
@@ -142,10 +152,14 @@ void envgen({
   String? active,
   required String clazz,
 }) {
+  print('Generating, please wait.');
+  var sw = Stopwatch()..start();
   var dir = Directory(path);
   var def = _toPairs(dir, ".env");
   _mergeActive(dir, def, active);
   _codegen(def, name: clazz, active: active, output: output);
+  print(
+      "Generation successful, took ${sw.elapsed.inMilliseconds} milliseconds.");
 }
 
 void parseAndGen(List<String> arguments) {
