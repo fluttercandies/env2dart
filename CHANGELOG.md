@@ -1,3 +1,7 @@
+## 0.1.4
+
+- Add `class` comments.
+
 ## 0.1.3
 
 - Improve codegen.
