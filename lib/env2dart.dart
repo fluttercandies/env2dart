@@ -72,7 +72,7 @@ void _codegen(
           ..name = 'active'
           ..type = Reference(active == null ? "String?" : "String")
           ..static = true
-          ..modifier = FieldModifier.final$
+          ..modifier = FieldModifier.constant
           ..assignment = active == null ? null : Code("'$active'"))
       ])
       ..methods = ListBuilder([
