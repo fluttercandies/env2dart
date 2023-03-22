@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:antlr4/antlr4.dart';
@@ -97,7 +98,14 @@ void _codegen(
           ..constant = true),
       ]),
   );
-
+  columns = pairs.values.map((e) => <Object>[e.type, e.name, e.value]).toList();
+  columns.insert(0, ["TYPE", "KEY", "VALUE"]);
+  pretty = dolumnify(
+    columns,
+    columnSplitter: ' | ',
+    headerIncluded: true,
+    headerSeparator: '=',
+  );
   var impl = Class(
     (b) => b
       ..name = '_$activeClass'
@@ -108,7 +116,12 @@ void _codegen(
           ..name = "toJson"
           ..annotations = ListBuilder([CodeExpression(Code("override"))])
           ..returns = Reference("Map<String, dynamic>")
-          ..body = Code("return {$toJson};"))
+          ..body = Code("return {$toJson};")),
+        Method((b) => b
+          ..name = "toString"
+          ..annotations = ListBuilder([CodeExpression(Code("override"))])
+          ..returns = Reference("String")
+          ..body = Code("return ${pretty.split("\n").map((e) => jsonEncode("$e\n")).join("\n")};"))
       ])
       ..constructors = ListBuilder([
         Constructor((b) => b
@@ -133,14 +146,6 @@ void _codegen(
     output = "$output.dart";
   }
   File(output).writeAsStringSync(code);
-  columns = pairs.values.map((e) => <Object>[e.type, e.name, e.value]).toList();
-  columns.insert(0, ["TYPE", "KEY", "VALUE"]);
-  pretty = dolumnify(
-    columns,
-    columnSplitter: ' | ',
-    headerIncluded: true,
-    headerSeparator: '=',
-  );
   print(pretty);
 }
 

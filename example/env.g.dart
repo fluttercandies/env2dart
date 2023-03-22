@@ -40,7 +40,7 @@
 abstract class Env {
   const factory Env() = _Prod._;
 
-  static final String active = 'prod';
+  static const String active = 'prod';
 
   /// From .env
   ///
@@ -178,19 +178,38 @@ class _Prod implements Env {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'INT': 90898,
-      'SIGNED_INT': -8898,
-      'DOUBLE': 3.1415926,
-      'SIGNED_DOUBLE': -0.123,
-      'BOOL': true,
-      'STRING': "AAA",
-      'NO_QUOTE_STRING': "ABC9shj\"\\'\\''';';;;'\\n\\r\\thttps://google.com",
-      'SINGLE_QUOTE_STRING': "'AB\\r\\n\\ta\\'\\\"C'",
-      'DOUBLE_QUOTE_STRING': "ABC",
-      'JSON': "{\"a\":1,\"b\":[1,true,\"hello\"]}",
-      'EMPTY': '',
-      'EMPTY_COMMENT': '',
-      'QWERTY': -0.343,
+      'INT': INT,
+      'SIGNED_INT': SIGNED_INT,
+      'DOUBLE': DOUBLE,
+      'SIGNED_DOUBLE': SIGNED_DOUBLE,
+      'BOOL': BOOL,
+      'STRING': STRING,
+      'NO_QUOTE_STRING': NO_QUOTE_STRING,
+      'SINGLE_QUOTE_STRING': SINGLE_QUOTE_STRING,
+      'DOUBLE_QUOTE_STRING': DOUBLE_QUOTE_STRING,
+      'JSON': JSON,
+      'EMPTY': EMPTY,
+      'EMPTY_COMMENT': EMPTY_COMMENT,
+      'QWERTY': QWERTY,
     };
+  }
+
+  @override
+  String toString() {
+    return "TYPE   | KEY                 | VALUE                                               \n"
+        "===================================================================================\n"
+        "int    | INT                 | 90898                                               \n"
+        "int    | SIGNED_INT          | -8898                                               \n"
+        "double | DOUBLE              | 3.1415926                                           \n"
+        "double | SIGNED_DOUBLE       | -0.123                                              \n"
+        "bool   | BOOL                | true                                                \n"
+        "String | STRING              | \"AAA\"                                               \n"
+        "String | NO_QUOTE_STRING     | \"ABC9shj\\\"\\\\'\\\\''';';;;'\\\\n\\\\r\\\\thttps://google.com\"\n"
+        "String | SINGLE_QUOTE_STRING | \"'AB\\\\r\\\\n\\\\ta\\\\'\\\\\\\"C'\"                            \n"
+        "String | DOUBLE_QUOTE_STRING | \"ABC\"                                               \n"
+        "String | JSON                | \"{\\\"a\\\":1,\\\"b\\\":[1,true,\\\"hello\\\"]}\"                \n"
+        "String | EMPTY               | ''                                                  \n"
+        "String | EMPTY_COMMENT       | ''                                                  \n"
+        "double | QWERTY              | -0.343                                              \n";
   }
 }
