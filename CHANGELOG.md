@@ -1,3 +1,7 @@
+## 0.1.5
+
+- Use `const`.
+
 ## 0.1.4
 
 - Add `class` comments.
