@@ -1,3 +1,7 @@
+## 0.1.6
+
+- Improve `toJson`.
+
 ## 0.1.5
 
 - Use `const`.
