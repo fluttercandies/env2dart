@@ -54,16 +54,7 @@ void _codegen(
       ..returns = Reference(field.type)));
     toJson.write("'${field.name}':${field.name},");
   }
-  var columns = pairs.values
-      .map((e) => <Object>[e.type, "[${e.name}]", e.value])
-      .toList();
-  columns.insert(0, ["TYPE", "KEY", "VALUE"]);
-  var pretty = dolumnify(
-    columns,
-    columnSplitter: ' | ',
-    headerIncluded: true,
-    headerSeparator: '=',
-  );
+
   var abs = Class(
     (b) => b
       ..name = name
@@ -89,7 +80,9 @@ void _codegen(
           if (active != null) '.env.$active'
         ].join(", ")}",
         "///",
-        ...pretty.split("\n").map((e) => ["/// $e", "///"]).expand((e) => e),
+        ...pairs.values
+            .map((e) => ["/// [${e.name}] : ${e.value}", "///"])
+            .expand((e) => e),
       ])
       ..constructors = ListBuilder([
         Constructor((b) => b
@@ -98,9 +91,10 @@ void _codegen(
           ..constant = true),
       ]),
   );
-  columns = pairs.values.map((e) => <Object>[e.type, e.name, e.value]).toList();
+  var columns =
+      pairs.values.map((e) => <Object>[e.type, e.name, e.value]).toList();
   columns.insert(0, ["TYPE", "KEY", "VALUE"]);
-  pretty = dolumnify(
+  var pretty = dolumnify(
     columns,
     columnSplitter: ' | ',
     headerIncluded: true,
@@ -121,7 +115,8 @@ void _codegen(
           ..name = "toString"
           ..annotations = ListBuilder([CodeExpression(Code("override"))])
           ..returns = Reference("String")
-          ..body = Code("return ${pretty.split("\n").map((e) => jsonEncode("$e\n")).join("\n")};"))
+          ..body = Code(
+              "return ${pretty.split("\n").map((e) => jsonEncode("$e\n")).join("\n")};"))
       ])
       ..constructors = ListBuilder([
         Constructor((b) => b

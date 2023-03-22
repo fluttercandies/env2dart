@@ -7,35 +7,31 @@
 ///
 /// [Env] depends on file: .env, .env.prod
 ///
-/// TYPE   | KEY                   | VALUE
+/// [INT] : 90898
 ///
-/// =====================================================================================
+/// [SIGNED_INT] : -8898
 ///
-/// int    | [INT]                 | 90898
+/// [DOUBLE] : 3.1415926
 ///
-/// int    | [SIGNED_INT]          | -8898
+/// [SIGNED_DOUBLE] : -0.123
 ///
-/// double | [DOUBLE]              | 3.1415926
+/// [BOOL] : true
 ///
-/// double | [SIGNED_DOUBLE]       | -0.123
+/// [STRING] : "AAA"
 ///
-/// bool   | [BOOL]                | true
+/// [NO_QUOTE_STRING] : "ABC9shj\"\\'\\''';';;;'\\n\\r\\thttps://google.com"
 ///
-/// String | [STRING]              | "AAA"
+/// [SINGLE_QUOTE_STRING] : "'AB\\r\\n\\ta\\'\\\"C'"
 ///
-/// String | [NO_QUOTE_STRING]     | "ABC9shj\"\\'\\''';';;;'\\n\\r\\thttps://google.com"
+/// [DOUBLE_QUOTE_STRING] : "ABC"
 ///
-/// String | [SINGLE_QUOTE_STRING] | "'AB\\r\\n\\ta\\'\\\"C'"
+/// [JSON] : "{\"a\":1,\"b\":[1,true,\"hello\"]}"
 ///
-/// String | [DOUBLE_QUOTE_STRING] | "ABC"
+/// [EMPTY] : ''
 ///
-/// String | [JSON]                | "{\"a\":1,\"b\":[1,true,\"hello\"]}"
+/// [EMPTY_COMMENT] : ''
 ///
-/// String | [EMPTY]               | ''
-///
-/// String | [EMPTY_COMMENT]       | ''
-///
-/// double | [QWERTY]              | -0.343
+/// [QWERTY] : -0.343
 ///
 abstract class Env {
   const factory Env() = _Prod._;
