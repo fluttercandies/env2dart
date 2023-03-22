@@ -53,6 +53,16 @@ void _codegen(
       ..returns = Reference(field.type)));
     toJson.write("'${field.name}':${field.value},");
   }
+  var columns = pairs.values
+      .map((e) => <Object>[e.type, "[${e.name}]", e.value])
+      .toList();
+  columns.insert(0, ["TYPE", "KEY", "VALUE"]);
+  var pretty = dolumnify(
+    columns,
+    columnSplitter: ' | ',
+    headerIncluded: true,
+    headerSeparator: '=',
+  );
   var abs = Class(
     (b) => b
       ..name = name
@@ -70,6 +80,15 @@ void _codegen(
         Method((b) => b
           ..name = "toJson"
           ..returns = Reference("Map<String, dynamic>"))
+      ])
+      ..docs = ListBuilder([
+        "///",
+        "/// [$name] depends on file: ${[
+          '.env',
+          if (active != null) '.env.$active'
+        ].join(", ")}",
+        "///",
+        ...pretty.split("\n").map((e) => ["/// $e", "///"]).expand((e) => e),
       ])
       ..constructors = ListBuilder([
         Constructor((b) => b
@@ -97,7 +116,6 @@ void _codegen(
           ..name = "_"),
       ]),
   );
-
   var library = Library((b) => b
     ..body.addAll([abs, impl])
     ..comments = ListBuilder([
@@ -115,10 +133,9 @@ void _codegen(
     output = "$output.dart";
   }
   File(output).writeAsStringSync(code);
-  var columns =
-      pairs.values.map((e) => <Object>[e.type, e.name, e.value ?? '']).toList();
+  columns = pairs.values.map((e) => <Object>[e.type, e.name, e.value]).toList();
   columns.insert(0, ["TYPE", "KEY", "VALUE"]);
-  var pretty = dolumnify(
+  pretty = dolumnify(
     columns,
     columnSplitter: ' | ',
     headerIncluded: true,
