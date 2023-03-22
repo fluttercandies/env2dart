@@ -51,7 +51,7 @@ void _codegen(
       ..body = Code(field.value.toString())
       ..lambda = true
       ..returns = Reference(field.type)));
-    toJson.write("'${field.name}':${field.value},");
+    toJson.write("'${field.name}':${field.name},");
   }
   var columns = pairs.values
       .map((e) => <Object>[e.type, "[${e.name}]", e.value])
