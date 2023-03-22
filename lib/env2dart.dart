@@ -27,6 +27,7 @@ const kIgnoreLints = [
   'camel_case_types',
   'non_constant_identifier_names',
   'prefer_single_quotes',
+  'avoid_escaping_inner_quotes',
 ];
 
 void _codegen(
