@@ -1,3 +1,7 @@
+## 0.2.0
+
+- Add ignore lint.
+
 ## 0.1.8
 
 - Update `comments`.
