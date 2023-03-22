@@ -1,3 +1,7 @@
+## 0.1.7
+
+- Add `toString`.
+
 ## 0.1.6
 
 - Improve `toJson`.
