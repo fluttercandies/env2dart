@@ -25,6 +25,7 @@ EnvParser _newParser(String contents) {
 const kIgnoreLints = [
   'camel_case_types',
   'non_constant_identifier_names',
+  'prefer_single_quotes',
 ];
 
 void _codegen(
@@ -33,10 +34,10 @@ void _codegen(
   String? active,
   String? output,
 }) {
-  active ??= name;
-  active = active.pascalCase;
+  var activeClass = (active ?? name).pascalCase;
   var fields = <Method>[];
   var getters = <Method>[];
+  var toJson = StringBuffer();
   for (var field in pairs.values) {
     getters.add(Method((b) => b
       ..name = field.name
@@ -47,28 +48,49 @@ void _codegen(
       ..name = field.name
       ..type = MethodType.getter
       ..annotations = ListBuilder([CodeExpression(Code("override"))])
-      ..body = Code(field.value == null ? "''" : field.value.toString())
+      ..body = Code(field.value.toString())
       ..lambda = true
       ..returns = Reference(field.type)));
+    toJson.write("'${field.name}':${field.value},");
   }
   var abs = Class(
     (b) => b
       ..name = name
       ..abstract = true
-      ..methods = ListBuilder(getters)
+      ..fields = ListBuilder([
+        Field((b) => b
+          ..name = 'active'
+          ..type = Reference(active == null ? "String?" : "String")
+          ..static = true
+          ..modifier = FieldModifier.final$
+          ..assignment = active == null ? null : Code("'$active'"))
+      ])
+      ..methods = ListBuilder([
+        ...getters,
+        Method((b) => b
+          ..name = "toJson"
+          ..returns = Reference("Map<String, dynamic>"))
+      ])
       ..constructors = ListBuilder([
         Constructor((b) => b
           ..factory = true
-          ..redirect = Reference("_$active._")
+          ..redirect = Reference("_$activeClass._")
           ..constant = true),
       ]),
   );
 
   var impl = Class(
     (b) => b
-      ..name = '_$active'
+      ..name = '_$activeClass'
       ..implements = ListBuilder([Reference(name)])
-      ..methods = ListBuilder(fields)
+      ..methods = ListBuilder([
+        ...fields,
+        Method((b) => b
+          ..name = "toJson"
+          ..annotations = ListBuilder([CodeExpression(Code("override"))])
+          ..returns = Reference("Map<String, dynamic>")
+          ..body = Code("return {$toJson};"))
+      ])
       ..constructors = ListBuilder([
         Constructor((b) => b
           ..constant = true
@@ -106,7 +128,7 @@ void _codegen(
 }
 
 Map<String, Pair> _toPairs(Directory dir, String file) {
-  var input = File(path.join(dir.path, file)).readAsStringSync();
+  var input = File(path.join(dir.absolute.path, file)).readAsStringSync();
   var parser = _newParser(input);
   var visitor = DefaultVisitor(file);
   visitor.visit(parser.env());
@@ -133,7 +155,7 @@ void _mergeActive(
           var table = [
             "Covered the default value",
             "",
-            "${old.value ?? ''} => ${value.value ?? ''}",
+            "${old.value} => ${value.value}",
             "========================================",
           ];
           value.comments = table..addAll(comments);
@@ -167,7 +189,7 @@ void parseAndGen(List<String> arguments) {
   args.addOption(
     "path",
     abbr: "p",
-    defaultsTo: "./",
+    defaultsTo: "",
     help:
         "Specify working directory, the CLI will look for the .env file in the current directory.",
   );
@@ -175,6 +197,7 @@ void parseAndGen(List<String> arguments) {
     "output",
     abbr: "o",
     help: "Specify the output file path.",
+    defaultsTo: "lib/env.g.dart",
   );
   args.addOption(
     "active",

@@ -1,7 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="env2dart.dart" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" nameIsGenerated="true">
+    <option name="arguments" value="-a prod -o lib/env.g.dart -c Prod" />
     <option name="filePath" value="$PROJECT_DIR$/bin/env2dart.dart" />
     <option name="workingDirectory" value="$PROJECT_DIR$" />
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="gen_antlr" run_configuration_type="ShConfigurationType" />
+    </method>
   </configuration>
 </component>

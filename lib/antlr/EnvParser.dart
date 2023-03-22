@@ -13,10 +13,10 @@ class EnvParser extends Parser {
   static final List<DFA> _decisionToDFA = List.generate(
       _ATN.numberOfDecisions, (i) => DFA(_ATN.getDecisionState(i), i));
   static final PredictionContextCache _sharedContextCache = PredictionContextCache();
-  static const int TOKEN_T__0 = 1, TOKEN_KEY = 2, TOKEN_NEWLINE = 3, TOKEN_NOTLINE = 4, 
-                   TOKEN_COMMENT = 5, TOKEN_INT = 6, TOKEN_DOUBLE = 7, TOKEN_BOOLEAN = 8, 
-                   TOKEN_SINGLE_QUOTE_STRING = 9, TOKEN_DOUBLE_QUOTE_STRING = 10, 
-                   TOKEN_NO_QUOTE_STRING = 11, TOKEN_WS = 12;
+  static const int TOKEN_T__0 = 1, TOKEN_KEY = 2, TOKEN_NEWLINE = 3, TOKEN_COMMENT = 4, 
+                   TOKEN_INT = 5, TOKEN_DOUBLE = 6, TOKEN_BOOLEAN = 7, TOKEN_SINGLE_QUOTE_STRING = 8, 
+                   TOKEN_DOUBLE_QUOTE_STRING = 9, TOKEN_NO_QUOTE_STRING = 10, 
+                   TOKEN_WS = 11;
 
   @override
   final List<String> ruleNames = [
@@ -27,9 +27,8 @@ class EnvParser extends Parser {
       null, "'='"
   ];
   static final List<String?> _SYMBOLIC_NAMES = [
-      null, null, "KEY", "NEWLINE", "NOTLINE", "COMMENT", "INT", "DOUBLE", 
-      "BOOLEAN", "SINGLE_QUOTE_STRING", "DOUBLE_QUOTE_STRING", "NO_QUOTE_STRING", 
-      "WS"
+      null, null, "KEY", "NEWLINE", "COMMENT", "INT", "DOUBLE", "BOOLEAN", 
+      "SINGLE_QUOTE_STRING", "DOUBLE_QUOTE_STRING", "NO_QUOTE_STRING", "WS"
   ];
   static final Vocabulary VOCABULARY = VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -62,7 +61,7 @@ class EnvParser extends Parser {
       state = 15;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
-      while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 44) != 0)) {
+      while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 28) != 0)) {
         state = 12;
         line();
         state = 17;
@@ -108,12 +107,12 @@ class EnvParser extends Parser {
         match(TOKEN_T__0);
         state = 29;
         errorHandler.sync(this);
-        _la = tokenStream.LA(1)!;
-        if ((((_la) & ~0x3f) == 0 && ((1 << _la) & 4032) != 0)) {
+        switch (interpreter!.adaptivePredict(tokenStream, 2, context)) {
+        case 1:
           state = 28;
           value();
+          break;
         }
-
         state = 32;
         errorHandler.sync(this);
         switch (interpreter!.adaptivePredict(tokenStream, 3, context)) {
@@ -180,6 +179,7 @@ class EnvParser extends Parser {
         state = 41;
         match(TOKEN_BOOLEAN);
         break;
+      case TOKEN_KEY:
       case TOKEN_SINGLE_QUOTE_STRING:
       case TOKEN_DOUBLE_QUOTE_STRING:
       case TOKEN_NO_QUOTE_STRING:
@@ -225,7 +225,7 @@ class EnvParser extends Parser {
       enterOuterAlt(_localctx, 1);
       state = 47;
       _la = tokenStream.LA(1)!;
-      if (!((((_la) & ~0x3f) == 0 && ((1 << _la) & 3584) != 0))) {
+      if (!((((_la) & ~0x3f) == 0 && ((1 << _la) & 1796) != 0))) {
       errorHandler.recoverInline(this);
       } else {
         if ( tokenStream.LA(1)! == IntStream.EOF ) matchedEOF = true;
@@ -243,21 +243,22 @@ class EnvParser extends Parser {
   }
 
   static const List<int> _serializedATN = [
-      4,1,12,50,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,5,0,
+      4,1,11,50,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,5,0,
       14,8,0,10,0,12,0,17,9,0,1,1,1,1,1,1,5,1,22,8,1,10,1,12,1,25,9,1,1,
       1,1,1,1,1,3,1,30,8,1,1,1,3,1,33,8,1,1,1,3,1,36,8,1,1,2,1,2,1,3,1,3,
-      1,3,1,3,3,3,44,8,3,1,4,1,4,1,5,1,5,1,5,0,0,6,0,2,4,6,8,10,0,1,1,0,
-      9,11,51,0,15,1,0,0,0,2,35,1,0,0,0,4,37,1,0,0,0,6,43,1,0,0,0,8,45,1,
-      0,0,0,10,47,1,0,0,0,12,14,3,2,1,0,13,12,1,0,0,0,14,17,1,0,0,0,15,13,
-      1,0,0,0,15,16,1,0,0,0,16,1,1,0,0,0,17,15,1,0,0,0,18,19,3,8,4,0,19,
-      20,5,3,0,0,20,22,1,0,0,0,21,18,1,0,0,0,22,25,1,0,0,0,23,21,1,0,0,0,
-      23,24,1,0,0,0,24,26,1,0,0,0,25,23,1,0,0,0,26,27,3,4,2,0,27,29,5,1,
-      0,0,28,30,3,6,3,0,29,28,1,0,0,0,29,30,1,0,0,0,30,32,1,0,0,0,31,33,
-      3,8,4,0,32,31,1,0,0,0,32,33,1,0,0,0,33,36,1,0,0,0,34,36,5,3,0,0,35,
-      23,1,0,0,0,35,34,1,0,0,0,36,3,1,0,0,0,37,38,5,2,0,0,38,5,1,0,0,0,39,
-      44,5,6,0,0,40,44,5,7,0,0,41,44,5,8,0,0,42,44,3,10,5,0,43,39,1,0,0,
-      0,43,40,1,0,0,0,43,41,1,0,0,0,43,42,1,0,0,0,44,7,1,0,0,0,45,46,5,5,
-      0,0,46,9,1,0,0,0,47,48,7,0,0,0,48,11,1,0,0,0,6,15,23,29,32,35,43
+      1,3,1,3,3,3,44,8,3,1,4,1,4,1,5,1,5,1,5,0,0,6,0,2,4,6,8,10,0,1,2,0,
+      2,2,8,10,51,0,15,1,0,0,0,2,35,1,0,0,0,4,37,1,0,0,0,6,43,1,0,0,0,8,
+      45,1,0,0,0,10,47,1,0,0,0,12,14,3,2,1,0,13,12,1,0,0,0,14,17,1,0,0,0,
+      15,13,1,0,0,0,15,16,1,0,0,0,16,1,1,0,0,0,17,15,1,0,0,0,18,19,3,8,4,
+      0,19,20,5,3,0,0,20,22,1,0,0,0,21,18,1,0,0,0,22,25,1,0,0,0,23,21,1,
+      0,0,0,23,24,1,0,0,0,24,26,1,0,0,0,25,23,1,0,0,0,26,27,3,4,2,0,27,29,
+      5,1,0,0,28,30,3,6,3,0,29,28,1,0,0,0,29,30,1,0,0,0,30,32,1,0,0,0,31,
+      33,3,8,4,0,32,31,1,0,0,0,32,33,1,0,0,0,33,36,1,0,0,0,34,36,5,3,0,0,
+      35,23,1,0,0,0,35,34,1,0,0,0,36,3,1,0,0,0,37,38,5,2,0,0,38,5,1,0,0,
+      0,39,44,5,5,0,0,40,44,5,6,0,0,41,44,5,7,0,0,42,44,3,10,5,0,43,39,1,
+      0,0,0,43,40,1,0,0,0,43,41,1,0,0,0,43,42,1,0,0,0,44,7,1,0,0,0,45,46,
+      5,4,0,0,46,9,1,0,0,0,47,48,7,0,0,0,48,11,1,0,0,0,6,15,23,29,32,35,
+      43
   ];
 
   static final ATN _ATN =
@@ -351,6 +352,7 @@ class StringContext extends ParserRuleContext {
   TerminalNode? SINGLE_QUOTE_STRING() => getToken(EnvParser.TOKEN_SINGLE_QUOTE_STRING, 0);
   TerminalNode? DOUBLE_QUOTE_STRING() => getToken(EnvParser.TOKEN_DOUBLE_QUOTE_STRING, 0);
   TerminalNode? NO_QUOTE_STRING() => getToken(EnvParser.TOKEN_NO_QUOTE_STRING, 0);
+  TerminalNode? KEY() => getToken(EnvParser.TOKEN_KEY, 0);
   StringContext([ParserRuleContext? parent, int? invokingState]) : super(parent, invokingState);
   @override
   int get ruleIndex => RULE_string;

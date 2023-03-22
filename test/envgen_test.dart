@@ -3,6 +3,6 @@ import 'package:test/test.dart';
 
 void main() {
   test('test', () {
-    parseAndGen(["-o", "env", "-a", "prod"]);
+    parseAndGen(["-o", "./example/env.g.dart", "-a", "prod"]);
   });
 }

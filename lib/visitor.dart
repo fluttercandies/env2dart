@@ -51,7 +51,7 @@ extension ValueContextExtension on ValueContext? {
   dynamic get value {
     var ctx = this;
     if (ctx == null) {
-      return null;
+      return "''";
     } else if (ctx.INT() != null) {
       return int.parse(ctx.text);
     } else if (ctx.DOUBLE() != null) {
@@ -60,8 +60,8 @@ extension ValueContextExtension on ValueContext? {
       return ctx.text == 'true';
     } else if (ctx.string() != null) {
       var str = ctx.string()!;
-      if (str.NO_QUOTE_STRING() != null) {
-        return "'${ctx.text}'";
+      if (str.NO_QUOTE_STRING() != null || str.KEY() != null) {
+        return jsonEncode(ctx.text);
       }
       return ctx.text;
     }
