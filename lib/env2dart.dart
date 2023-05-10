@@ -196,17 +196,6 @@ void envgen({
     } else {
       body = [_toAbs(d, othersKey: {}, name: clazz)];
     }
-    body.insert(
-      0,
-      Method(
-        (b) => b
-          ..type = MethodType.getter
-          ..name = 'env'
-          ..lambda = true
-          ..body = Code('$clazz.\$active')
-          ..returns = Reference(clazz),
-      ),
-    );
   } else {
     body = _toEnvs(envs, name: clazz);
   }
