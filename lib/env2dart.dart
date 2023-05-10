@@ -224,6 +224,21 @@ void envgen({
       .$info(tag: 'env2dart');
 }
 
+Method _entriesGetter(Map<String, Pair> env) {
+  final sb = StringBuffer();
+  for (final entry in env.entries) {
+    sb.writeln("MapEntry('${entry.key}', ${entry.key}),");
+  }
+  return Method(
+    (b) => b
+      ..name = 'entries'
+      ..type = MethodType.getter
+      ..returns = const Reference('List<MapEntry<String, dynamic>>')
+      ..lambda = true
+      ..body = Code('[$sb]'),
+  );
+}
+
 Class _toAbs(
   Map<String, Pair> pairs, {
   Set<String> othersKey = const {},
@@ -334,6 +349,7 @@ Class _toAbs(
       ])
       ..methods = ListBuilder([
         ...getters,
+        _entriesGetter(pairs),
         Method(
           (b) => b
             ..name = 'overrideValue'
@@ -495,9 +511,8 @@ Class _toEnvClass(
     }
   }
   final isDefault = env.key == '.env';
-  final className = isDefault
-      ? name
-      : '$name ${env.key.substring('.env.'.length)}'.pascalCase;
+  final envKey = env.key.substring('.env.'.length);
+  final className = isDefault ? name : '$name $envKey'.pascalCase;
   return Class(
     (b) => b
       ..name = className
@@ -512,6 +527,7 @@ Class _toEnvClass(
       ])
       ..methods = ListBuilder([
         ...getters,
+        _entriesGetter(env.value),
         Method(
           (b) => b
             ..name = 'overrideValue'
@@ -547,13 +563,13 @@ Class _toEnvClass(
             ..body = Code(
               'final sb = StringBuffer();\n$toString\nreturn sb.toString();',
             ),
-        )
+        ),
       ])
       ..constructors = ListBuilder([
         Constructor(
           (b) => b
             ..initializers = ListBuilder(
-              [Code("env = '${isDefault ? '' : env.key.substring('.env.'.length)}'")],
+              [Code("env = '${isDefault ? '' : envKey}'")],
             ),
         ),
       ]),
