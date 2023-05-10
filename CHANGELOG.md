@@ -1,3 +1,7 @@
+## 0.3.3
+
+- Add env `entries` getter
+
 ## 0.3.2
 
 - Remove `env` getter
