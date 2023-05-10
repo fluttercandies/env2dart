@@ -4,38 +4,42 @@ import 'antlr/EnvBaseVisitor.dart';
 import 'antlr/EnvParser.dart';
 
 class DefaultVisitor extends EnvBaseVisitor {
+  DefaultVisitor(this.target);
+
   final pairs = <String, Pair>{};
 
   final String target;
 
-  DefaultVisitor(this.target);
-
   @override
-  visitLine(LineContext ctx) {
-    var key = ctx.key();
+  void visitLine(LineContext ctx) {
+    final key = ctx.key();
     if (key != null && key.text.isNotEmpty) {
-      var name = key.text;
-      var value = ctx.value().value;
-      var type = ctx.value().type;
-      var comments = ctx
+      final name = key.text;
+      final value = ctx.value().value;
+      final type = ctx.value().type;
+      final comments = ctx
           .comments()
-          .map((e) => [e.text.substring(1).trim(), ""])
-          .expand((e) => e);
-      pairs[name] = Pair(name, type, value, [
-        "From $target",
-        "",
-        ">> $name = ${ctx.value()?.text ?? ''}",
-        "",
-        ...comments,
-      ]);
+          .map((e) => [e.text.substring(1).trim(), ''])
+          .expand((e) => e)
+          .where((e) => e.isNotEmpty);
+      pairs[name] = Pair(
+        name: name,
+        type: type,
+        value: value,
+        comments: [
+          'From $target',
+          ">> $name = ${ctx.value()?.text ?? ''}",
+          ...comments,
+        ],
+      );
     }
-    return super.visitLine(ctx);
+    super.visitLine(ctx);
   }
 }
 
 extension ValueContextExtension on ValueContext? {
   String get type {
-    var ctx = this;
+    final ctx = this;
     if (ctx == null) {
       return 'String';
     } else if (ctx.INT() != null) {
@@ -49,7 +53,7 @@ extension ValueContextExtension on ValueContext? {
   }
 
   dynamic get value {
-    var ctx = this;
+    final ctx = this;
     if (ctx == null) {
       return "''";
     } else if (ctx.INT() != null) {
@@ -59,7 +63,7 @@ extension ValueContextExtension on ValueContext? {
     } else if (ctx.BOOLEAN() != null) {
       return ctx.text == 'true';
     } else if (ctx.string() != null) {
-      var str = ctx.string()!;
+      final str = ctx.string()!;
       if (str.NO_QUOTE_STRING() != null || str.KEY() != null) {
         return jsonEncode(ctx.text);
       }
@@ -70,29 +74,48 @@ extension ValueContextExtension on ValueContext? {
 }
 
 class Pair {
-  List<String> comments;
-  final String name;
-  final String type;
-  final dynamic value;
+  Pair({
+    required this.name,
+    required this.type,
+    required this.value,
+    required this.comments,
+    this.nullable = false,
+  });
 
-  Pair(
-    this.name,
-    this.type,
-    this.value,
-    this.comments,
-  );
+  final String name;
+  List<String> comments;
+  String type;
+  dynamic value;
+  bool nullable;
+
+  Pair copyWith({
+    String? name,
+    List<String>? comments,
+    String? type,
+    Object? value,
+    bool? nullable,
+  }) {
+    return Pair(
+      name: name ?? this.name,
+      type: type ?? this.type,
+      value: value ?? this.value,
+      comments: comments ?? List.from(this.comments),
+      nullable: nullable ?? this.nullable,
+    );
+  }
 
   @override
   String toString() {
-    return jsonEncode(this);
+    return jsonEncode(toJson());
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "name": name,
-      "type": type,
-      "value": value,
-      "comments": comments,
+      'name': name,
+      'type': type,
+      'value': value,
+      'nullable': nullable,
+      'comments': comments,
     };
   }
 }
