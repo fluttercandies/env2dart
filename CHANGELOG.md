@@ -1,3 +1,8 @@
+## 0.3.1
+
+- Add more log info
+- Add more code comments
+
 ## 0.3.0
 
 - Refactoring codegen.
