@@ -4,7 +4,9 @@ import 'package:antlr4/antlr4.dart';
 import 'package:args/args.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:code_builder/code_builder.dart';
+import 'package:collection/collection.dart';
 import 'package:dart_style/dart_style.dart';
+import 'package:dolumns/dolumns.dart';
 import 'package:recase/recase.dart';
 
 import 'antlr/EnvLexer.dart';
@@ -82,15 +84,32 @@ void envgen({
   'Generating, please wait.'.$info(tag: 'env2dart');
   final sw = Stopwatch()..start();
   final dir = Directory(path);
-  final entries = dir.listSync().whereType<File>().where((e) {
-    final fileName = e.uri.pathSegments.last;
-    return fileName == '.env' || fileName.startsWith('.env.');
-  }).map((e) {
-    final fileName = e.uri.pathSegments.last;
-    final pairs = _resolvePairs(e, fileName);
-    'found file: $fileName'.$info(tag: 'env2dart');
-    return MapEntry(fileName, pairs);
-  });
+  final entries = dir
+      .listSync()
+      .whereType<File>()
+      .where((e) {
+        final fileName = e.uri.pathSegments.last;
+        return fileName == '.env' || fileName.startsWith('.env.');
+      })
+      .sortedBy((e) => e.path)
+      .map((e) {
+        final fileName = e.uri.pathSegments.last;
+        final pairs = _resolvePairs(e, fileName);
+        final columns = [
+          ['KEY', 'VALUE']
+        ];
+        for (final pair in pairs.values) {
+          columns.add([pair.name, pair.value.toString()]);
+        }
+        final str = dolumnify(
+          columns,
+          headerSeparator: '=',
+          columnSplitter: ' | ',
+          headerIncluded: true,
+        );
+        'load $fileName\n\n$str\n\n'.$info(tag: 'env2dart');
+        return MapEntry(fileName, pairs);
+      });
   final envs = Map.fromEntries(entries);
   final List<Spec> body;
   if (envs.containsKey('.env')) {
@@ -124,7 +143,7 @@ void envgen({
       }
       final abs = {...d};
       final impls = <Spec>[];
-      final otherEnvs = <Field>[];
+      final extFields = <Field>[];
       Field? activeField;
       for (final entry in entries) {
         _mergeEnv(
@@ -134,15 +153,16 @@ void envgen({
           useEnvValue: true,
         );
         impls.add(_toSubenv(clazz, entry));
-        final key = entry.key.split('.').last;
+        final key = entry.key.substring('.env.'.length);
         final className = '$clazz $key'.pascalCase;
-        otherEnvs.add(
+        extFields.add(
           Field(
             (b) => b
               ..name = key
               ..type = Reference(className)
               ..static = true
               ..modifier = FieldModifier.final$
+              ..docs = ListBuilder(['/// [$key] from ${entry.key}'])
               ..assignment = Code('$className()'),
           ),
         );
@@ -152,6 +172,8 @@ void envgen({
               ..name = r'$active'
               ..type = Reference(clazz)
               ..static = true
+              ..docs =
+                  ListBuilder([r'/// [$active] currently active ".env" file.'])
               ..assignment = Code(key),
           );
         }
@@ -163,11 +185,11 @@ void envgen({
           ..static = true
           ..assignment = const Code(r'$'),
       );
-      otherEnvs.add(activeField);
+      extFields.add(activeField);
       final absClass = _toAbs(
         abs,
         othersKey: otherKeys,
-        otherEnvs: otherEnvs,
+        extFields: extFields,
         name: clazz,
       );
       body = [absClass, ...impls];
@@ -206,7 +228,9 @@ void envgen({
   if (!output.endsWith('.dart')) {
     output = '$output.dart';
   }
-  File(output).writeAsStringSync(code);
+  final outputFile = File(output);
+  'output: ${outputFile.path}'.$info(tag: 'env2dart');
+  outputFile.writeAsStringSync(code);
   'Generation successful, took ${sw.elapsed.inMilliseconds} milliseconds.'
       .$info(tag: 'env2dart');
 }
@@ -214,7 +238,7 @@ void envgen({
 Class _toAbs(
   Map<String, Pair> pairs, {
   Set<String> othersKey = const {},
-  List<Field> otherEnvs = const [],
+  List<Field> extFields = const [],
   required String name,
 }) {
   final getters = <Method>[];
@@ -313,9 +337,10 @@ Class _toAbs(
             ..static = true
             ..modifier = FieldModifier.final$
             ..assignment = Code("$name('')")
+            ..docs = ListBuilder([r'/// [$] from .env'])
             ..type = Reference(name),
         ),
-        ...otherEnvs,
+        ...extFields,
         ...fields,
       ])
       ..methods = ListBuilder([
@@ -397,7 +422,8 @@ Class _toSubenv(
     }
     ovcodes.writeln('_${field.name} = $v;');
   }
-  final className = '$name ${env.key.split('.').last}'.pascalCase;
+  final ek = env.key.substring('.env.'.length);
+  final className = '$name $ek'.pascalCase;
   return Class(
     (b) => b
       ..name = className
@@ -407,7 +433,7 @@ Class _toSubenv(
           (b) => b
             ..body = Code(ovcodes.toString())
             ..initializers = ListBuilder(
-              [Code("super('${env.key.split('.').last}')")],
+              [Code("super('$ek')")],
             ),
         ),
       ]),
@@ -480,8 +506,9 @@ Class _toEnvClass(
     }
   }
   final isDefault = env.key == '.env';
-  final className =
-      isDefault ? name : '$name ${env.key.split('.').last}'.pascalCase;
+  final className = isDefault
+      ? name
+      : '$name ${env.key.substring('.env.'.length)}'.pascalCase;
   return Class(
     (b) => b
       ..name = className
@@ -537,7 +564,7 @@ Class _toEnvClass(
         Constructor(
           (b) => b
             ..initializers = ListBuilder(
-              [Code("env = '${isDefault ? '' : env.key.split('.').last}'")],
+              [Code("env = '${isDefault ? '' : env.key.substring('.env.'.length)}'")],
             ),
         ),
       ]),

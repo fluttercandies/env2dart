@@ -11,14 +11,19 @@ class Env {
 
   final String env;
 
+  /// [$] from .env
   static final Env $ = Env('');
 
-  static final EnvProd prod = EnvProd();
-
-  static final EnvStaging staging = EnvStaging();
-
+  /// [dev] from .env.dev
   static final EnvDev dev = EnvDev();
 
+  /// [prod] from .env.prod
+  static final EnvProd prod = EnvProd();
+
+  /// [staging] from .env.staging
+  static final EnvStaging staging = EnvStaging();
+
+  /// [$active] currently active ".env" file.
   static Env $active = prod;
 
   String _INT = '90898';
@@ -89,15 +94,15 @@ class Env {
   /// >> BOOL = false
   /// type bool
   /// ========================================
+  /// From .env.dev
+  /// >> BOOL = true
+  /// covered
+  /// ========================================
   /// From .env.prod
   /// >> BOOL = true
   /// covered
   /// ========================================
   /// From .env.staging
-  /// >> BOOL = true
-  /// covered
-  /// ========================================
-  /// From .env.dev
   /// >> BOOL = true
   /// covered
   bool get BOOL => _BOOL;
@@ -132,26 +137,26 @@ class Env {
   /// EMPTY
   String get EMPTY_COMMENT => _EMPTY_COMMENT;
 
+  /// From .env.dev
+  /// >> QWERTY = -0.343
+  /// specical
+  /// ========================================
   /// From .env.prod
   /// >> QWERTY = -0.343
   /// specical
   /// ========================================
   /// From .env.staging
-  /// >> QWERTY = -0.343
-  /// specical
-  /// ========================================
-  /// From .env.dev
   /// >> QWERTY = -0.343
   /// specical
   double? get QWERTY => _QWERTY;
 
+  /// From .env.dev
+  /// >> ASDF = -0.343
+  /// ========================================
   /// From .env.prod
   /// >> ASDF = -0.343
   /// ========================================
   /// From .env.staging
-  /// >> ASDF = -0.343
-  /// ========================================
-  /// From .env.dev
   /// >> ASDF = -0.343
   double? get ASDF => _ASDF;
 
@@ -318,6 +323,31 @@ class Env {
   }
 }
 
+class EnvDev extends Env {
+  EnvDev() : super('dev') {
+    // From .env.dev
+    // >> BOOL = true
+    // covered
+    _BOOL = true;
+    // From .env.dev
+    // >> INT = asd
+    _INT = "asd";
+    // From .env.dev
+    // >> SIGNED_INT = -asd
+    _SIGNED_INT = "-asd";
+    // From .env.dev
+    // >> DOUBLE = 3.asd
+    _DOUBLE = "3.asd";
+    // From .env.dev
+    // >> QWERTY = -0.343
+    // specical
+    _QWERTY = -0.343;
+    // From .env.dev
+    // >> ASDF = -0.343
+    _ASDF = -0.343;
+  }
+}
+
 class EnvProd extends Env {
   EnvProd() : super('prod') {
     // From .env.prod
@@ -359,30 +389,5 @@ class EnvStaging extends Env {
     // From .env.staging
     // >> ZXCV = -0.343
     _ZXCV = -0.343;
-  }
-}
-
-class EnvDev extends Env {
-  EnvDev() : super('dev') {
-    // From .env.dev
-    // >> BOOL = true
-    // covered
-    _BOOL = true;
-    // From .env.dev
-    // >> INT = asd
-    _INT = "asd";
-    // From .env.dev
-    // >> SIGNED_INT = -asd
-    _SIGNED_INT = "-asd";
-    // From .env.dev
-    // >> DOUBLE = 3.asd
-    _DOUBLE = "3.asd";
-    // From .env.dev
-    // >> QWERTY = -0.343
-    // specical
-    _QWERTY = -0.343;
-    // From .env.dev
-    // >> ASDF = -0.343
-    _ASDF = -0.343;
   }
 }
