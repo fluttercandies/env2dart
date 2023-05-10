@@ -1,3 +1,7 @@
+## 0.3.2
+
+- Remove `env` getter
+
 ## 0.3.1
 
 - Add more log info
