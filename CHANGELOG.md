@@ -1,3 +1,7 @@
+## 0.3.4
+
+- Improve env `toString`
+
 ## 0.3.3
 
 - Add env `entries` getter
