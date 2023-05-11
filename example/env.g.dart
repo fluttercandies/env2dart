@@ -173,7 +173,6 @@ class Env {
   /// From .env.staging
   /// >> ZXCV = -0.343
   double? get ZXCV => _ZXCV;
-
   List<MapEntry<String, dynamic>> get entries => [
         MapEntry('INT', INT),
         MapEntry('SIGNED_INT', SIGNED_INT),
@@ -194,7 +193,6 @@ class Env {
         MapEntry('MNB', MNB),
         MapEntry('ZXCV', ZXCV),
       ];
-
   void overrideValue({
     String? INT,
     String? SIGNED_INT,
@@ -301,43 +299,64 @@ class Env {
   }
 
   @override
-  String toString() {
+  String toString({
+    int padRight = 19,
+    String separator = ' : ',
+  }) {
     final sb = StringBuffer();
-    sb.write('INT: ');
+    sb.write('INT'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(INT);
-    sb.write('SIGNED_INT: ');
+    sb.write('SIGNED_INT'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(SIGNED_INT);
-    sb.write('DOUBLE: ');
+    sb.write('DOUBLE'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(DOUBLE);
-    sb.write('SIGNED_DOUBLE: ');
+    sb.write('SIGNED_DOUBLE'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(SIGNED_DOUBLE);
-    sb.write('BOOL: ');
+    sb.write('BOOL'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(BOOL);
-    sb.write('STRING: ');
+    sb.write('STRING'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(STRING);
-    sb.write('NO_QUOTE_STRING: ');
+    sb.write('NO_QUOTE_STRING'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(NO_QUOTE_STRING);
-    sb.write('SINGLE_QUOTE_STRING: ');
+    sb.write('SINGLE_QUOTE_STRING'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(SINGLE_QUOTE_STRING);
-    sb.write('DOUBLE_QUOTE_STRING: ');
+    sb.write('DOUBLE_QUOTE_STRING'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(DOUBLE_QUOTE_STRING);
-    sb.write('JSON: ');
+    sb.write('JSON'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(JSON);
-    sb.write('EMPTY: ');
+    sb.write('EMPTY'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(EMPTY);
-    sb.write('EMPTY_COMMENT: ');
+    sb.write('EMPTY_COMMENT'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(EMPTY_COMMENT);
-    sb.write('QWERTY: ');
+    sb.write('QWERTY'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(QWERTY);
-    sb.write('ASDF: ');
+    sb.write('ASDF'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(ASDF);
-    sb.write('POIU: ');
+    sb.write('POIU'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(POIU);
-    sb.write('LKJH: ');
+    sb.write('LKJH'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(LKJH);
-    sb.write('MNB: ');
+    sb.write('MNB'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(MNB);
-    sb.write('ZXCV: ');
+    sb.write('ZXCV'.padRight(padRight));
+    sb.write(separator);
     sb.writeln(ZXCV);
     return sb.toString();
   }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:antlr4/antlr4.dart';
 import 'package:args/args.dart';
@@ -253,8 +254,10 @@ Class _toAbs(
   final toString = StringBuffer();
   final ovjvs = StringBuffer();
   final ovjps = StringBuffer();
+  int padRight = 0;
   for (final field in pairs.values) {
     final fieldName = field.name;
+    padRight = math.max(fieldName.length, padRight);
     final fieldType = field.type;
     getters.add(
       Method(
@@ -304,7 +307,9 @@ Class _toAbs(
     );
     ovcodes.writeln('_$fieldName = $fieldName ?? _$fieldName;');
     toJson.write("'$fieldName': $fieldName,");
-    toString.write("sb.write('$fieldName: ');\nsb.writeln($fieldName);");
+    toString.write(
+      "sb.write('$fieldName'.padRight(padRight));sb.write(separator);sb.writeln($fieldName);",
+    );
     if (fieldType == 'int') {
       ovjvs.writeln("final $fieldName = json['$fieldName'];");
       ovjps.writeln(
@@ -382,6 +387,22 @@ Class _toAbs(
             ..annotations =
                 ListBuilder([const CodeExpression(Code('override'))])
             ..returns = const Reference('String')
+            ..optionalParameters = ListBuilder([
+              Parameter(
+                (b) => b
+                  ..name = 'padRight'
+                  ..type = const Reference('int')
+                  ..defaultTo = Code(padRight.toString())
+                  ..named = true,
+              ),
+              Parameter(
+                (b) => b
+                  ..name = 'separator'
+                  ..type = const Reference('String')
+                  ..defaultTo = const Code("' : '")
+                  ..named = true,
+              ),
+            ])
             ..body = Code(
               'final sb = StringBuffer();\n$toString\nreturn sb.toString();',
             ),
@@ -457,8 +478,10 @@ Class _toEnvClass(
   final toString = StringBuffer();
   final ovjvs = StringBuffer();
   final ovjps = StringBuffer();
+  int padRight = 0;
   for (final field in env.value.values) {
     final fieldName = field.name;
+    padRight = math.max(fieldName.length, padRight);
     final fieldType = field.type;
     getters.add(
       Method(
@@ -489,7 +512,9 @@ Class _toEnvClass(
     );
     ovcodes.writeln('_$fieldName = $fieldName ?? _$fieldName;');
     toJson.write("'$fieldName': $fieldName,");
-    toString.write("sb.write('$fieldName: ');\nsb.writeln($fieldName);");
+    toString.write(
+      "sb.write('$fieldName'.padRight(padRight));sb.write(separator);sb.writeln($fieldName);",
+    );
     if (fieldType == 'int') {
       ovjvs.writeln("final $fieldName = json['$fieldName'];");
       ovjps.writeln(
@@ -560,6 +585,22 @@ Class _toEnvClass(
             ..annotations =
                 ListBuilder([const CodeExpression(Code('override'))])
             ..returns = const Reference('String')
+            ..optionalParameters = ListBuilder([
+              Parameter(
+                (b) => b
+                  ..name = 'padRight'
+                  ..type = const Reference('int')
+                  ..defaultTo = Code(padRight.toString())
+                  ..named = true,
+              ),
+              Parameter(
+                (b) => b
+                  ..name = 'separator'
+                  ..type = const Reference('String')
+                  ..defaultTo = const Code("' : '")
+                  ..named = true,
+              ),
+            ])
             ..body = Code(
               'final sb = StringBuffer();\n$toString\nreturn sb.toString();',
             ),
