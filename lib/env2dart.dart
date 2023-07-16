@@ -219,6 +219,9 @@ void envgen({
     output = '$output.dart';
   }
   final outputFile = File(output);
+  if (!outputFile.existsSync()) {
+    outputFile.createSync(recursive: true);
+  }
   'output: ${outputFile.path}'.$info(tag: 'env2dart');
   outputFile.writeAsStringSync(code);
   'Generation successful, took ${sw.elapsed.inMilliseconds} milliseconds.'
