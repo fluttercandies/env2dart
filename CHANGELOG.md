@@ -1,19 +1,23 @@
+## 0.3.5
+
+- Fix codegen.
+
 ## 0.3.4
 
-- Improve env `toString`
+- Improve env `toString`.
 
 ## 0.3.3
 
-- Add env `entries` getter
+- Add env `entries` getter.
 
 ## 0.3.2
 
-- Remove `env` getter
+- Remove `env` getter.
 
 ## 0.3.1
 
-- Add more log info
-- Add more code comments
+- Add more log info.
+- Add more code comments.
 
 ## 0.3.0
 
