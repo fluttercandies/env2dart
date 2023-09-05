@@ -31,19 +31,19 @@ const kIgnoreLints = [
   'avoid_escaping_inner_quotes',
 ];
 
-Map<String, Pair> _resolvePairs(File file, String fileName) {
+Map<String, KeyValue> _resolvePairs(File file, String fileName) {
   final input = file.readAsStringSync();
   final parser = _newParser(input);
   final visitor = DefaultVisitor(fileName);
   visitor.visit(parser.env());
-  return visitor.pairs;
+  return visitor.keyMap;
 }
 
 const _numberType = ['int', 'double'];
 
 void _mergeEnv(
-  Map<String, Pair> env,
-  Map<String, Pair> other, {
+  Map<String, KeyValue> env,
+  Map<String, KeyValue> other, {
   Set<String>? nullableKeys,
   bool useEnvValue = false,
 }) {
@@ -228,7 +228,7 @@ void envgen({
       .$info(tag: 'env2dart');
 }
 
-Method _entriesGetter(Map<String, Pair> env) {
+Method _entriesGetter(Map<String, KeyValue> env) {
   final sb = StringBuffer();
   for (final entry in env.entries) {
     sb.writeln("MapEntry('${entry.key}', ${entry.key}),");
@@ -244,7 +244,7 @@ Method _entriesGetter(Map<String, Pair> env) {
 }
 
 Class _toAbs(
-  Map<String, Pair> pairs, {
+  Map<String, KeyValue> kvs, {
   Set<String> othersKey = const {},
   List<Field> extFields = const [],
   required String name,
@@ -258,7 +258,7 @@ Class _toAbs(
   final ovjvs = StringBuffer();
   final ovjps = StringBuffer();
   int padRight = 0;
-  for (final field in pairs.values) {
+  for (final field in kvs.values) {
     final fieldName = field.name;
     padRight = math.max(fieldName.length, padRight);
     final fieldType = field.type;
@@ -357,7 +357,7 @@ Class _toAbs(
       ])
       ..methods = ListBuilder([
         ...getters,
-        _entriesGetter(pairs),
+        _entriesGetter(kvs),
         Method(
           (b) => b
             ..name = 'overrideValue'
@@ -427,7 +427,7 @@ Class _toAbs(
 }
 
 List<Class> _toEnvs(
-  Map<String, Map<String, Pair>> envs, {
+  Map<String, Map<String, KeyValue>> envs, {
   required String name,
 }) {
   return envs.entries.map((e) => _toEnvClass(name, e)).toList(growable: false);
@@ -435,7 +435,7 @@ List<Class> _toEnvs(
 
 Class _toSubenv(
   String name,
-  MapEntry<String, Map<String, Pair>> env,
+  MapEntry<String, Map<String, KeyValue>> env,
 ) {
   final ovcodes = StringBuffer();
   for (final field in env.value.values) {
@@ -471,7 +471,7 @@ Class _toSubenv(
 
 Class _toEnvClass(
   String name,
-  MapEntry<String, Map<String, Pair>> env,
+  MapEntry<String, Map<String, KeyValue>> env,
 ) {
   final getters = <Method>[];
   final fields = <Field>[];

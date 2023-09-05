@@ -6,7 +6,7 @@ import 'antlr/EnvParser.dart';
 class DefaultVisitor extends EnvBaseVisitor {
   DefaultVisitor(this.target);
 
-  final pairs = <String, Pair>{};
+  final keyMap = <String, KeyValue>{};
 
   final String target;
 
@@ -22,7 +22,7 @@ class DefaultVisitor extends EnvBaseVisitor {
           .map((e) => [e.text.substring(1).trim(), ''])
           .expand((e) => e)
           .where((e) => e.isNotEmpty);
-      pairs[name] = Pair(
+      keyMap[name] = KeyValue(
         name: name,
         type: type,
         value: value,
@@ -73,8 +73,8 @@ extension ValueContextExtension on ValueContext? {
   }
 }
 
-class Pair {
-  Pair({
+class KeyValue {
+  KeyValue({
     required this.name,
     required this.type,
     required this.value,
@@ -88,14 +88,14 @@ class Pair {
   dynamic value;
   bool nullable;
 
-  Pair copyWith({
+  KeyValue copyWith({
     String? name,
     List<String>? comments,
     String? type,
     Object? value,
     bool? nullable,
   }) {
-    return Pair(
+    return KeyValue(
       name: name ?? this.name,
       type: type ?? this.type,
       value: value ?? this.value,

@@ -1,3 +1,7 @@
+## 0.3.6
+
+- Fix `antlr`'s version conflict.
+
 ## 0.3.5
 
 - Fix codegen.
