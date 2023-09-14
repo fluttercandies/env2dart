@@ -112,6 +112,9 @@ void envgen({
         return MapEntry(fileName, pairs);
       });
   final envs = Map.fromEntries(entries);
+  if (envs.isEmpty) {
+    throw StateError('${dir.absolute.path} does not contains envs.');
+  }
   final List<Spec> body;
   if (envs.containsKey('.env')) {
     final d = envs.remove('.env')!;
