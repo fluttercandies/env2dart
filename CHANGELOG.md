@@ -1,3 +1,7 @@
+## 0.3.7
+
+- Prevent generating from a project without envs.
+
 ## 0.3.6
 
 - Fix `antlr`'s version conflict.
