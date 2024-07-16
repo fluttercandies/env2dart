@@ -30,6 +30,7 @@ env2dart
 -a, --active    Specify the environment variables to use. For example, if -active prod is specified, the CLI will look for the .env.prod file and merge it with the .env file.
 -c, --class     Specify the name for the generated class
                 (defaults to "Env")
+-e, --encoder   Encode value using the encoder to avoid raw strings. Allows 'base64' and 'utf8'.
 -h, --help      View help options.
 ```
 

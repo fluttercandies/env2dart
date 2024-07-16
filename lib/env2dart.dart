@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -25,11 +26,15 @@ EnvParser _newParser(String contents) {
 }
 
 const kIgnoreLints = [
+  'avoid_escaping_inner_quotes',
   'camel_case_types',
   'non_constant_identifier_names',
   'prefer_single_quotes',
-  'avoid_escaping_inner_quotes',
+  'require_trailing_commas',
 ];
+
+const kEncoderBase64 = 'base64';
+const kEncoderUtf8 = 'utf8';
 
 Map<String, KeyValue> _resolvePairs(File file, String fileName) {
   final input = file.readAsStringSync();
@@ -77,10 +82,12 @@ void _mergeEnv(
 }
 
 void envgen({
-  String? output,
+  required List<String> rawArguments,
   required String path,
-  String? active,
+  required String? output,
   required String clazz,
+  required String? active,
+  required String? encoder,
 }) {
   'Generating, please wait.'.$info(tag: 'env2dart');
   final sw = Stopwatch()..start();
@@ -97,7 +104,7 @@ void envgen({
         final fileName = e.uri.pathSegments.last;
         final pairs = _resolvePairs(e, fileName);
         final columns = [
-          ['KEY', 'VALUE']
+          ['KEY', 'VALUE'],
         ];
         for (final pair in pairs.values) {
           columns.add([pair.name, pair.value.toString()]);
@@ -156,7 +163,7 @@ void envgen({
           nullableKeys: nullableKeys,
           useEnvValue: true,
         );
-        impls.add(_toSubenv(clazz, entry));
+        impls.add(_toSubenv(clazz, entry, encoder: encoder));
         final key = entry.key.substring('.env.'.length);
         final className = '$clazz $key'.pascalCase;
         extFields.add(
@@ -195,13 +202,14 @@ void envgen({
         othersKey: otherKeys,
         extFields: extFields,
         name: clazz,
+        encoder: encoder,
       );
       body = [absClass, ...impls];
     } else {
-      body = [_toAbs(d, othersKey: {}, name: clazz)];
+      body = [_toAbs(d, othersKey: {}, name: clazz, encoder: encoder)];
     }
   } else {
-    body = _toEnvs(envs, name: clazz);
+    body = _toEnvs(envs, name: clazz, encoder: encoder);
   }
   final library = Library(
     (b) => b
@@ -212,9 +220,13 @@ void envgen({
         '======================================',
         'GENERATED CODE - DO NOT MODIFY BY HAND',
         '======================================',
+        'Generate command: env2dart ${rawArguments.join(' ')}',
+      ])
+      ..directives = ListBuilder([
+        if (encoder != null) Directive.import('dart:convert'),
       ]),
   );
-  final dartEmitter = DartEmitter();
+  final dartEmitter = DartEmitter(orderDirectives: true);
   var code = library.accept(dartEmitter).toString();
   code = DartFormatter(fixes: StyleFix.all).format(code);
   output ??= './lib/${clazz.snakeCase}.dart';
@@ -251,6 +263,7 @@ Class _toAbs(
   Set<String> othersKey = const {},
   List<Field> extFields = const [],
   required String name,
+  String? encoder,
 }) {
   final getters = <Method>[];
   final fields = <Field>[];
@@ -293,11 +306,7 @@ Class _toAbs(
             b.type = Reference('$fieldType?');
           } else {
             b.type = Reference(fieldType);
-            String v = field.value.toString();
-            if (fieldType == 'String' &&
-                !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
-              v = "'$v'";
-            }
+            final v = field.valueWith(encoder: encoder);
             b.assignment = Code(v);
           }
         },
@@ -378,7 +387,7 @@ Class _toAbs(
                 (b) => b
                   ..name = 'json'
                   ..type = const Reference('Map'),
-              )
+              ),
             ]),
         ),
         Method(
@@ -412,7 +421,7 @@ Class _toAbs(
             ..body = Code(
               'final sb = StringBuffer();\n$toString\nreturn sb.toString();',
             ),
-        )
+        ),
       ])
       ..constructors = ListBuilder([
         Constructor(
@@ -422,7 +431,7 @@ Class _toAbs(
                 (b) => b
                   ..name = 'env'
                   ..toThis = true,
-              )
+              ),
             ]),
         ),
       ]),
@@ -432,14 +441,18 @@ Class _toAbs(
 List<Class> _toEnvs(
   Map<String, Map<String, KeyValue>> envs, {
   required String name,
+  String? encoder,
 }) {
-  return envs.entries.map((e) => _toEnvClass(name, e)).toList(growable: false);
+  return envs.entries
+      .map((e) => _toEnvClass(name, e, encoder: encoder))
+      .toList(growable: false);
 }
 
 Class _toSubenv(
   String name,
-  MapEntry<String, Map<String, KeyValue>> env,
-) {
+  MapEntry<String, Map<String, KeyValue>> env, {
+  String? encoder,
+}) {
   final ovcodes = StringBuffer();
   for (final field in env.value.values) {
     ovcodes.writeln(
@@ -448,10 +461,7 @@ Class _toSubenv(
           .map((e) => '    // $e')
           .join('\n'),
     );
-    String v = field.value.toString();
-    if (field.type == 'String' && !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
-      v = "'$v'";
-    }
+    final v = field.valueWith(encoder: encoder);
     ovcodes.writeln('_${field.name} = $v;');
   }
   final ek = env.key.substring('.env.'.length);
@@ -474,8 +484,9 @@ Class _toSubenv(
 
 Class _toEnvClass(
   String name,
-  MapEntry<String, Map<String, KeyValue>> env,
-) {
+  MapEntry<String, Map<String, KeyValue>> env, {
+  String? encoder,
+}) {
   final getters = <Method>[];
   final fields = <Field>[];
   final ovps = <Parameter>[];
@@ -502,10 +513,12 @@ Class _toEnvClass(
     );
     fields.add(
       Field(
-        (b) => b
-          ..type = Reference(fieldType)
-          ..name = '_$fieldName'
-          ..assignment = Code(field.value.toString()),
+        (b) {
+          b
+            ..type = Reference(fieldType)
+            ..name = '_$fieldName'
+            ..assignment = Code(field.valueWith(encoder: encoder));
+        },
       ),
     );
     ovps.add(
@@ -576,7 +589,7 @@ Class _toEnvClass(
                 (b) => b
                   ..name = 'json'
                   ..type = const Reference('Map'),
-              )
+              ),
             ]),
         ),
         Method(
@@ -625,12 +638,18 @@ Class _toEnvClass(
 
 void parseAndGen(List<String> arguments) {
   final args = ArgParser();
+  args.addFlag(
+    'help',
+    abbr: 'h',
+    negatable: false,
+    help: 'View help options.',
+  );
   args.addOption(
     'path',
     abbr: 'p',
     defaultsTo: '',
-    help:
-        'Specify working directory, the CLI will look for the .env file in the current directory.',
+    help: 'Specify working directory, '
+        'the CLI will look for the .env file in the current directory.',
   );
   args.addOption(
     'output',
@@ -639,22 +658,25 @@ void parseAndGen(List<String> arguments) {
     defaultsTo: 'lib/env.g.dart',
   );
   args.addOption(
-    'active',
-    abbr: 'a',
-    help:
-        'Specify the environment variables to use. For example, if -active prod is specified, the CLI will look for the .env.prod file and merge it with the .env file.',
-  );
-  args.addOption(
     'class',
     abbr: 'c',
     defaultsTo: 'Env',
     help: 'Specify the name for the generated class',
   );
-  args.addFlag(
-    'help',
-    abbr: 'h',
-    negatable: false,
-    help: 'View help options.',
+  args.addOption(
+    'active',
+    abbr: 'a',
+    help: 'Specify the environment variables to use. '
+        'For example, if -active prod is specified, '
+        'the CLI will look for the .env.prod file '
+        'and merge it with the .env file.',
+  );
+  args.addOption(
+    'encoder',
+    abbr: 'e',
+    allowed: [kEncoderBase64, kEncoderUtf8],
+    help: 'Encode value using the encoder to avoid raw strings. '
+        "Allows 'base64' and 'utf8'.",
   );
   final parse = args.parse(arguments);
   if (parse['help'] == true) {
@@ -662,9 +684,40 @@ void parseAndGen(List<String> arguments) {
     return;
   }
   envgen(
+    rawArguments: arguments,
     path: parse['path'],
     output: parse['output'],
-    active: parse['active'],
     clazz: parse['class'],
+    active: parse['active'],
+    encoder: parse['encoder'],
   );
+}
+
+final _stringRegExp = RegExp('^[\'"](.*)[\'"]\$');
+
+extension on String {
+  String formalizedWith({String? encoder}) {
+    String v = replaceAllMapped(
+      _stringRegExp,
+      (match) => match.group(1) ?? match.group(0)!,
+    );
+    if (encoder == kEncoderBase64) {
+      v = 'utf8.decode('
+          "base64.decode('${base64.encode(v.codeUnits)}',),"
+          ')';
+    } else if (encoder == kEncoderUtf8) {
+      v = 'utf8.decode(${utf8.encode(v)})';
+    }
+    return v;
+  }
+}
+
+extension on KeyValue {
+  String valueWith({String? encoder}) {
+    String v = value.toString().formalizedWith(encoder: encoder);
+    if (encoder == null && type == 'String' && !_stringRegExp.hasMatch(v)) {
+      v = "'$v'";
+    }
+    return v;
+  }
 }
