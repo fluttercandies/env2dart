@@ -514,7 +514,7 @@ Class _toEnvClass(
     fields.add(
       Field(
         (b) {
-          String v = field.value.toString();
+          String v = field.value.toString().formalized;
           if (encoder == kEncoderBase64) {
             v = base64.encode(v.codeUnits);
           } else if (encoder == kEncoderUtf8) {
@@ -699,9 +699,16 @@ void parseAndGen(List<String> arguments) {
   );
 }
 
+extension on String {
+  String get formalized => replaceAllMapped(
+        RegExp(r'^"(.*)"$'),
+        (match) => match.group(1) ?? match.group(0)!,
+      );
+}
+
 extension on KeyValue {
   String valueWith({String? encoder}) {
-    String v = value.toString();
+    String v = value.toString().formalized;
     if (encoder == kEncoderBase64) {
       v = 'utf8.decode('
           "base64.decode('${base64.encode(v.codeUnits)}',),"
