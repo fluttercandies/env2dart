@@ -79,7 +79,7 @@ void _mergeEnv(
 }
 
 void envgen({
-  String? output,
+  required List<String> rawArguments,
   required String path,
   required String? output,
   required String clazz,
@@ -692,6 +692,7 @@ void parseAndGen(List<String> arguments) {
     return;
   }
   envgen(
+    rawArguments: arguments,
     path: parse['path'],
     output: parse['output'],
     clazz: parse['class'],
