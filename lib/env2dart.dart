@@ -681,7 +681,8 @@ void parseAndGen(List<String> arguments) {
     'encoder',
     abbr: 'e',
     allowed: [kEncoderBase64, kEncoderUtf8],
-    help: 'Encode value using the encoder to avoid raw strings.',
+    help: 'Encode value using the encoder to avoid raw strings. '
+        "Allows 'base64' and 'utf8'.",
   );
   final parse = args.parse(arguments);
   if (parse['help'] == true) {
