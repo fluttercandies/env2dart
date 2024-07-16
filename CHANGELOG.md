@@ -1,3 +1,7 @@
+## 0.4.0+1
+
+- Fixes .gitignore.
+
 ## 0.4.0
 
 - Adds encoder support.

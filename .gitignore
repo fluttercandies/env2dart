@@ -5,4 +5,6 @@
 # Created by `dart pub`
 .dart_tool/
 pubspec.lock
+
 lib/Env*
+!lib/env2dart.dart
