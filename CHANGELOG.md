@@ -1,3 +1,8 @@
+## 0.4.0
+
+- Adds encoder support.
+- Produces raw arguments in the generated file to help regenerate.
+
 ## 0.3.7
 
 - Prevent generating from a project without envs.
