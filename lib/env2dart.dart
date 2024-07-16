@@ -514,16 +514,10 @@ Class _toEnvClass(
     fields.add(
       Field(
         (b) {
-          String v = field.value.toString().formalized;
-          if (encoder == kEncoderBase64) {
-            v = base64.encode(v.codeUnits);
-          } else if (encoder == kEncoderUtf8) {
-            v = utf8.encode(v).toString();
-          }
           b
             ..type = Reference(fieldType)
             ..name = '_$fieldName'
-            ..assignment = Code(v);
+            ..assignment = Code(field.valueWith(encoder: encoder));
         },
       ),
     );
@@ -699,23 +693,29 @@ void parseAndGen(List<String> arguments) {
   );
 }
 
-extension on String {
-  String get formalized => replaceAllMapped(
-        RegExp(r'^"(.*)"$'),
-        (match) => match.group(1) ?? match.group(0)!,
-      );
-}
+final _stringRegExp = RegExp('^[\'"](.*)[\'"]\$');
 
-extension on KeyValue {
-  String valueWith({String? encoder}) {
-    String v = value.toString().formalized;
+extension on String {
+  String formalizedWith({String? encoder}) {
+    String v = replaceAllMapped(
+      _stringRegExp,
+      (match) => match.group(1) ?? match.group(0)!,
+    );
     if (encoder == kEncoderBase64) {
       v = 'utf8.decode('
           "base64.decode('${base64.encode(v.codeUnits)}',),"
           ')';
     } else if (encoder == kEncoderUtf8) {
       v = 'utf8.decode(${utf8.encode(v)})';
-    } else if (type == 'String' && !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
+    }
+    return v;
+  }
+}
+
+extension on KeyValue {
+  String valueWith({String? encoder}) {
+    String v = value.toString().formalizedWith(encoder: encoder);
+    if (encoder == null && type == 'String' && !_stringRegExp.hasMatch(v)) {
       v = "'$v'";
     }
     return v;
