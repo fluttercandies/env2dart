@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -25,10 +26,11 @@ EnvParser _newParser(String contents) {
 }
 
 const kIgnoreLints = [
+  'avoid_escaping_inner_quotes',
   'camel_case_types',
   'non_constant_identifier_names',
   'prefer_single_quotes',
-  'avoid_escaping_inner_quotes',
+  'require_trailing_commas',
 ];
 
 Map<String, KeyValue> _resolvePairs(File file, String fileName) {
@@ -79,8 +81,10 @@ void _mergeEnv(
 void envgen({
   String? output,
   required String path,
-  String? active,
+  required String? output,
   required String clazz,
+  required String? active,
+  required String? encoder,
 }) {
   'Generating, please wait.'.$info(tag: 'env2dart');
   final sw = Stopwatch()..start();
@@ -97,7 +101,7 @@ void envgen({
         final fileName = e.uri.pathSegments.last;
         final pairs = _resolvePairs(e, fileName);
         final columns = [
-          ['KEY', 'VALUE']
+          ['KEY', 'VALUE'],
         ];
         for (final pair in pairs.values) {
           columns.add([pair.name, pair.value.toString()]);
@@ -195,13 +199,14 @@ void envgen({
         othersKey: otherKeys,
         extFields: extFields,
         name: clazz,
+        encoder: encoder,
       );
       body = [absClass, ...impls];
     } else {
-      body = [_toAbs(d, othersKey: {}, name: clazz)];
+      body = [_toAbs(d, othersKey: {}, name: clazz, encoder: encoder)];
     }
   } else {
-    body = _toEnvs(envs, name: clazz);
+    body = _toEnvs(envs, name: clazz, encoder: encoder);
   }
   final library = Library(
     (b) => b
@@ -212,9 +217,13 @@ void envgen({
         '======================================',
         'GENERATED CODE - DO NOT MODIFY BY HAND',
         '======================================',
+        'Generate command: env2dart ${rawArguments.join(' ')}',
+      ])
+      ..directives = ListBuilder([
+        if (encoder != null) Directive.import('dart:convert'),
       ]),
   );
-  final dartEmitter = DartEmitter();
+  final dartEmitter = DartEmitter(orderDirectives: true);
   var code = library.accept(dartEmitter).toString();
   code = DartFormatter(fixes: StyleFix.all).format(code);
   output ??= './lib/${clazz.snakeCase}.dart';
@@ -251,6 +260,7 @@ Class _toAbs(
   Set<String> othersKey = const {},
   List<Field> extFields = const [],
   required String name,
+  String? encoder,
 }) {
   final getters = <Method>[];
   final fields = <Field>[];
@@ -294,7 +304,9 @@ Class _toAbs(
           } else {
             b.type = Reference(fieldType);
             String v = field.value.toString();
-            if (fieldType == 'String' &&
+            if (encoder == 'utf8') {
+              v = 'utf8.decode(${utf8.encode(v)})';
+            } else if (fieldType == 'String' &&
                 !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
               v = "'$v'";
             }
@@ -378,7 +390,7 @@ Class _toAbs(
                 (b) => b
                   ..name = 'json'
                   ..type = const Reference('Map'),
-              )
+              ),
             ]),
         ),
         Method(
@@ -412,7 +424,7 @@ Class _toAbs(
             ..body = Code(
               'final sb = StringBuffer();\n$toString\nreturn sb.toString();',
             ),
-        )
+        ),
       ])
       ..constructors = ListBuilder([
         Constructor(
@@ -422,7 +434,7 @@ Class _toAbs(
                 (b) => b
                   ..name = 'env'
                   ..toThis = true,
-              )
+              ),
             ]),
         ),
       ]),
@@ -432,8 +444,11 @@ Class _toAbs(
 List<Class> _toEnvs(
   Map<String, Map<String, KeyValue>> envs, {
   required String name,
+  String? encoder,
 }) {
-  return envs.entries.map((e) => _toEnvClass(name, e)).toList(growable: false);
+  return envs.entries
+      .map((e) => _toEnvClass(name, e, encoder: encoder))
+      .toList(growable: false);
 }
 
 Class _toSubenv(
@@ -474,8 +489,9 @@ Class _toSubenv(
 
 Class _toEnvClass(
   String name,
-  MapEntry<String, Map<String, KeyValue>> env,
-) {
+  MapEntry<String, Map<String, KeyValue>> env, {
+  String? encoder,
+}) {
   final getters = <Method>[];
   final fields = <Field>[];
   final ovps = <Parameter>[];
@@ -502,10 +518,16 @@ Class _toEnvClass(
     );
     fields.add(
       Field(
-        (b) => b
-          ..type = Reference(fieldType)
-          ..name = '_$fieldName'
-          ..assignment = Code(field.value.toString()),
+        (b) {
+          String v = field.value.toString();
+          if (encoder == 'utf8') {
+            v = utf8.encode(v).toString();
+          }
+          b
+            ..type = Reference(fieldType)
+            ..name = '_$fieldName'
+            ..assignment = Code(v);
+        },
       ),
     );
     ovps.add(
@@ -576,7 +598,7 @@ Class _toEnvClass(
                 (b) => b
                   ..name = 'json'
                   ..type = const Reference('Map'),
-              )
+              ),
             ]),
         ),
         Method(
@@ -625,12 +647,18 @@ Class _toEnvClass(
 
 void parseAndGen(List<String> arguments) {
   final args = ArgParser();
+  args.addFlag(
+    'help',
+    abbr: 'h',
+    negatable: false,
+    help: 'View help options.',
+  );
   args.addOption(
     'path',
     abbr: 'p',
     defaultsTo: '',
-    help:
-        'Specify working directory, the CLI will look for the .env file in the current directory.',
+    help: 'Specify working directory, '
+        'the CLI will look for the .env file in the current directory.',
   );
   args.addOption(
     'output',
@@ -639,22 +667,24 @@ void parseAndGen(List<String> arguments) {
     defaultsTo: 'lib/env.g.dart',
   );
   args.addOption(
-    'active',
-    abbr: 'a',
-    help:
-        'Specify the environment variables to use. For example, if -active prod is specified, the CLI will look for the .env.prod file and merge it with the .env file.',
-  );
-  args.addOption(
     'class',
     abbr: 'c',
     defaultsTo: 'Env',
     help: 'Specify the name for the generated class',
   );
-  args.addFlag(
-    'help',
-    abbr: 'h',
-    negatable: false,
-    help: 'View help options.',
+  args.addOption(
+    'active',
+    abbr: 'a',
+    help: 'Specify the environment variables to use. '
+        'For example, if -active prod is specified, '
+        'the CLI will look for the .env.prod file '
+        'and merge it with the .env file.',
+  );
+  args.addOption(
+    'encoder',
+    abbr: 'e',
+    allowed: ['utf8'],
+    help: 'Encode value using the encoder to avoid raw strings.',
   );
   final parse = args.parse(arguments);
   if (parse['help'] == true) {
@@ -664,7 +694,8 @@ void parseAndGen(List<String> arguments) {
   envgen(
     path: parse['path'],
     output: parse['output'],
-    active: parse['active'],
     clazz: parse['class'],
+    active: parse['active'],
+    encoder: parse['encoder'],
   );
 }
