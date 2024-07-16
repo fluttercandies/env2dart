@@ -33,6 +33,9 @@ const kIgnoreLints = [
   'require_trailing_commas',
 ];
 
+const kEncoderBase64 = 'base64';
+const kEncoderUtf8 = 'utf8';
+
 Map<String, KeyValue> _resolvePairs(File file, String fileName) {
   final input = file.readAsStringSync();
   final parser = _newParser(input);
@@ -304,7 +307,11 @@ Class _toAbs(
           } else {
             b.type = Reference(fieldType);
             String v = field.value.toString();
-            if (encoder == 'utf8') {
+            if (encoder == kEncoderBase64) {
+              v = 'utf8.decode('
+                  "base64.decode('${base64.encode(v.codeUnits)}',),"
+                  ')';
+            } else if (encoder == kEncoderUtf8) {
               v = 'utf8.decode(${utf8.encode(v)})';
             } else if (fieldType == 'String' &&
                 !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
@@ -520,7 +527,9 @@ Class _toEnvClass(
       Field(
         (b) {
           String v = field.value.toString();
-          if (encoder == 'utf8') {
+          if (encoder == kEncoderBase64) {
+            v = base64.encode(v.codeUnits);
+          } else if (encoder == kEncoderUtf8) {
             v = utf8.encode(v).toString();
           }
           b
@@ -683,7 +692,7 @@ void parseAndGen(List<String> arguments) {
   args.addOption(
     'encoder',
     abbr: 'e',
-    allowed: ['utf8'],
+    allowed: [kEncoderBase64, kEncoderUtf8],
     help: 'Encode value using the encoder to avoid raw strings.',
   );
   final parse = args.parse(arguments);
