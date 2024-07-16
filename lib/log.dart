@@ -114,6 +114,7 @@ extension Log on Object? {
     Object? error,
     StackTrace? stackTrace,
   }) {
+    // ignore: deprecated_member_use, (whereNotNull)
     final es = [error, stackTrace].whereNotNull().join('\n\n');
     final hasError = es.isNotEmpty;
     final buffer = StringBuffer();
