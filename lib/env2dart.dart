@@ -163,7 +163,7 @@ void envgen({
           nullableKeys: nullableKeys,
           useEnvValue: true,
         );
-        impls.add(_toSubenv(clazz, entry));
+        impls.add(_toSubenv(clazz, entry, encoder: encoder));
         final key = entry.key.substring('.env.'.length);
         final className = '$clazz $key'.pascalCase;
         extFields.add(
@@ -306,17 +306,7 @@ Class _toAbs(
             b.type = Reference('$fieldType?');
           } else {
             b.type = Reference(fieldType);
-            String v = field.value.toString();
-            if (encoder == kEncoderBase64) {
-              v = 'utf8.decode('
-                  "base64.decode('${base64.encode(v.codeUnits)}',),"
-                  ')';
-            } else if (encoder == kEncoderUtf8) {
-              v = 'utf8.decode(${utf8.encode(v)})';
-            } else if (fieldType == 'String' &&
-                !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
-              v = "'$v'";
-            }
+            final v = field.valueWith(encoder: encoder);
             b.assignment = Code(v);
           }
         },
@@ -460,8 +450,9 @@ List<Class> _toEnvs(
 
 Class _toSubenv(
   String name,
-  MapEntry<String, Map<String, KeyValue>> env,
-) {
+  MapEntry<String, Map<String, KeyValue>> env, {
+  String? encoder,
+}) {
   final ovcodes = StringBuffer();
   for (final field in env.value.values) {
     ovcodes.writeln(
@@ -470,10 +461,7 @@ Class _toSubenv(
           .map((e) => '    // $e')
           .join('\n'),
     );
-    String v = field.value.toString();
-    if (field.type == 'String' && !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
-      v = "'$v'";
-    }
+    final v = field.valueWith(encoder: encoder);
     ovcodes.writeln('_${field.name} = $v;');
   }
   final ek = env.key.substring('.env.'.length);
@@ -708,4 +696,20 @@ void parseAndGen(List<String> arguments) {
     active: parse['active'],
     encoder: parse['encoder'],
   );
+}
+
+extension on KeyValue {
+  String valueWith({String? encoder}) {
+    String v = value.toString();
+    if (encoder == kEncoderBase64) {
+      v = 'utf8.decode('
+          "base64.decode('${base64.encode(v.codeUnits)}',),"
+          ')';
+    } else if (encoder == kEncoderUtf8) {
+      v = 'utf8.decode(${utf8.encode(v)})';
+    } else if (type == 'String' && !RegExp('^[\'"].*[\'"]\$').hasMatch(v)) {
+      v = "'$v'";
+    }
+    return v;
+  }
 }
