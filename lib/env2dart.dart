@@ -693,14 +693,11 @@ void parseAndGen(List<String> arguments) {
   );
 }
 
-final _stringRegExp = RegExp('^[\'"](.*)[\'"]\$');
+final _stringRegExp = RegExp('^[\'"].*[\'"]\$');
 
 extension on String {
   String formalizedWith({String? encoder}) {
-    String v = replaceAllMapped(
-      _stringRegExp,
-      (match) => match.group(1) ?? match.group(0)!,
-    );
+    String v = this;
     if (encoder == kEncoderBase64) {
       v = 'utf8.decode('
           "base64.decode('${base64.encode(v.codeUnits)}',),"
