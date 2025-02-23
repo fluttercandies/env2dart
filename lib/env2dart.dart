@@ -253,8 +253,8 @@ Method _entriesGetter(Map<String, KeyValue> env) {
       ..name = 'entries'
       ..type = MethodType.getter
       ..returns = const Reference('List<MapEntry<String, dynamic>>')
-      ..lambda = true
-      ..body = Code('[$sb]'),
+      ..lambda = false
+      ..body = Code('return [$sb];'),
   );
 }
 

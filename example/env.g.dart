@@ -173,26 +173,30 @@ class Env {
   /// From .env.staging
   /// >> ZXCV = -0.343
   double? get ZXCV => _ZXCV;
-  List<MapEntry<String, dynamic>> get entries => [
-        MapEntry('INT', INT),
-        MapEntry('SIGNED_INT', SIGNED_INT),
-        MapEntry('DOUBLE', DOUBLE),
-        MapEntry('SIGNED_DOUBLE', SIGNED_DOUBLE),
-        MapEntry('BOOL', BOOL),
-        MapEntry('STRING', STRING),
-        MapEntry('NO_QUOTE_STRING', NO_QUOTE_STRING),
-        MapEntry('SINGLE_QUOTE_STRING', SINGLE_QUOTE_STRING),
-        MapEntry('DOUBLE_QUOTE_STRING', DOUBLE_QUOTE_STRING),
-        MapEntry('JSON', JSON),
-        MapEntry('EMPTY', EMPTY),
-        MapEntry('EMPTY_COMMENT', EMPTY_COMMENT),
-        MapEntry('QWERTY', QWERTY),
-        MapEntry('ASDF', ASDF),
-        MapEntry('POIU', POIU),
-        MapEntry('LKJH', LKJH),
-        MapEntry('MNB', MNB),
-        MapEntry('ZXCV', ZXCV),
-      ];
+
+  List<MapEntry<String, dynamic>> get entries {
+    return [
+      MapEntry('INT', INT),
+      MapEntry('SIGNED_INT', SIGNED_INT),
+      MapEntry('DOUBLE', DOUBLE),
+      MapEntry('SIGNED_DOUBLE', SIGNED_DOUBLE),
+      MapEntry('BOOL', BOOL),
+      MapEntry('STRING', STRING),
+      MapEntry('NO_QUOTE_STRING', NO_QUOTE_STRING),
+      MapEntry('SINGLE_QUOTE_STRING', SINGLE_QUOTE_STRING),
+      MapEntry('DOUBLE_QUOTE_STRING', DOUBLE_QUOTE_STRING),
+      MapEntry('JSON', JSON),
+      MapEntry('EMPTY', EMPTY),
+      MapEntry('EMPTY_COMMENT', EMPTY_COMMENT),
+      MapEntry('QWERTY', QWERTY),
+      MapEntry('ASDF', ASDF),
+      MapEntry('POIU', POIU),
+      MapEntry('LKJH', LKJH),
+      MapEntry('MNB', MNB),
+      MapEntry('ZXCV', ZXCV),
+    ];
+  }
+
   void overrideValue({
     String? INT,
     String? SIGNED_INT,
