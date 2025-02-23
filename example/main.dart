@@ -1,3 +1,13 @@
 import 'package:env2dart/env2dart.dart';
 
-void main() => parseAndGen(['-o', './lib/env.g.dart']);
+import 'env.g.dart';
+
+void main() {
+  parseAndGen(
+    [
+      '-o',
+      './example/env.g.dart',
+    ],
+  );
+  print(Env.$active);
+}

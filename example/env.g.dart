@@ -1,8 +1,9 @@
 // coverage:ignore-file
-// ignore_for_file: camel_case_types, non_constant_identifier_names, prefer_single_quotes, avoid_escaping_inner_quotes
+// ignore_for_file: avoid_escaping_inner_quotes, camel_case_types, non_constant_identifier_names, prefer_single_quotes, require_trailing_commas
 // ======================================
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ======================================
+// Generate command: env2dart -o ./example/env.g.dart
 
 class Env {
   Env(this.env);
@@ -21,8 +22,7 @@ class Env {
   /// [staging] from .env.staging
   static final EnvStaging staging = EnvStaging();
 
-  /// [$active] currently active ".env" file.
-  static Env $active = prod;
+  static Env $active = $;
 
   String _INT = '90898';
 
