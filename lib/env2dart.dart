@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:antlr4/antlr4.dart';
 import 'package:args/args.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:cbor/cbor.dart' show CborString, cbor;
 import 'package:code_builder/code_builder.dart';
 import 'package:collection/collection.dart';
 import 'package:dart_style/dart_style.dart';
@@ -15,6 +16,63 @@ import 'antlr/EnvLexer.dart';
 import 'antlr/EnvParser.dart';
 import 'log.dart';
 import 'visitor.dart';
+
+void parseAndGen(List<String> arguments) {
+  final args = ArgParser();
+  args.addFlag(
+    'help',
+    abbr: 'h',
+    negatable: false,
+    help: 'View help options.',
+  );
+  args.addOption(
+    'path',
+    abbr: 'p',
+    defaultsTo: '',
+    help: 'Specify working directory, '
+        'the CLI will look for the .env file in the current directory.',
+  );
+  args.addOption(
+    'output',
+    abbr: 'o',
+    help: 'Specify the output file path.',
+    defaultsTo: 'lib/env.g.dart',
+  );
+  args.addOption(
+    'class',
+    abbr: 'c',
+    defaultsTo: 'Env',
+    help: 'Specify the name for the generated class',
+  );
+  args.addOption(
+    'active',
+    abbr: 'a',
+    help: 'Specify the environment variables to use. '
+        'For example, if -active prod is specified, '
+        'the CLI will look for the .env.prod file '
+        'and merge it with the .env file.',
+  );
+  args.addOption(
+    'encoder',
+    abbr: 'e',
+    allowed: [kEncoderBase64, kEncoderCbor, kEncoderUtf8],
+    help: 'Encode value using the encoder to avoid raw strings. '
+        'Allows base64/cbor/utf8.',
+  );
+  final parse = args.parse(arguments);
+  if (parse['help'] == true) {
+    print(args.usage);
+    return;
+  }
+  envgen(
+    rawArguments: arguments,
+    path: parse['path'],
+    output: parse['output'],
+    clazz: parse['class'],
+    active: parse['active'],
+    encoder: parse['encoder'],
+  );
+}
 
 EnvParser _newParser(String contents) {
   final input = InputStream.fromString(contents);
@@ -34,6 +92,7 @@ const kIgnoreLints = [
 ];
 
 const kEncoderBase64 = 'base64';
+const kEncoderCbor = 'cbor';
 const kEncoderUtf8 = 'utf8';
 
 Map<String, KeyValue> _resolvePairs(File file, String fileName) {
@@ -223,7 +282,9 @@ void envgen({
         'Generate command: env2dart ${rawArguments.join(' ')}',
       ])
       ..directives = ListBuilder([
-        if (encoder != null) Directive.import('dart:convert'),
+        if (encoder == kEncoderBase64 || encoder == kEncoderUtf8)
+          Directive.import('dart:convert'),
+        if (encoder == kEncoderCbor) Directive.import('package:cbor/cbor.dart'),
       ]),
   );
   final dartEmitter = DartEmitter(orderDirectives: true);
@@ -277,7 +338,10 @@ Class _toAbs(
   for (final field in kvs.values) {
     final fieldName = field.name;
     padRight = math.max(fieldName.length, padRight);
-    final fieldType = field.type;
+    String fieldType = field.type;
+    if (encoder != null) {
+      fieldType = 'String';
+    }
     getters.add(
       Method(
         (b) {
@@ -636,63 +700,6 @@ Class _toEnvClass(
   );
 }
 
-void parseAndGen(List<String> arguments) {
-  final args = ArgParser();
-  args.addFlag(
-    'help',
-    abbr: 'h',
-    negatable: false,
-    help: 'View help options.',
-  );
-  args.addOption(
-    'path',
-    abbr: 'p',
-    defaultsTo: '',
-    help: 'Specify working directory, '
-        'the CLI will look for the .env file in the current directory.',
-  );
-  args.addOption(
-    'output',
-    abbr: 'o',
-    help: 'Specify the output file path.',
-    defaultsTo: 'lib/env.g.dart',
-  );
-  args.addOption(
-    'class',
-    abbr: 'c',
-    defaultsTo: 'Env',
-    help: 'Specify the name for the generated class',
-  );
-  args.addOption(
-    'active',
-    abbr: 'a',
-    help: 'Specify the environment variables to use. '
-        'For example, if -active prod is specified, '
-        'the CLI will look for the .env.prod file '
-        'and merge it with the .env file.',
-  );
-  args.addOption(
-    'encoder',
-    abbr: 'e',
-    allowed: [kEncoderBase64, kEncoderUtf8],
-    help: 'Encode value using the encoder to avoid raw strings. '
-        "Allows 'base64' and 'utf8'.",
-  );
-  final parse = args.parse(arguments);
-  if (parse['help'] == true) {
-    print(args.usage);
-    return;
-  }
-  envgen(
-    rawArguments: arguments,
-    path: parse['path'],
-    output: parse['output'],
-    clazz: parse['class'],
-    active: parse['active'],
-    encoder: parse['encoder'],
-  );
-}
-
 final _stringRegExp = RegExp('^[\'"].*[\'"]\$');
 
 extension on String {
@@ -702,6 +709,8 @@ extension on String {
       v = 'utf8.decode('
           "base64.decode('${base64.encode(v.codeUnits)}',),"
           ')';
+    } else if (encoder == kEncoderCbor) {
+      v = 'cbor.decode(${cbor.encode(CborString(v))}).toString()';
     } else if (encoder == kEncoderUtf8) {
       v = 'utf8.decode(${utf8.encode(v)})';
     }
