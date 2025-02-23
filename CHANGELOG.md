@@ -1,3 +1,9 @@
+## 0.5.0
+
+- Support CBOR encoder.
+- Fix string formalize.
+- Improve entries format.
+
 ## 0.4.0+1
 
 - Fixes .gitignore.
