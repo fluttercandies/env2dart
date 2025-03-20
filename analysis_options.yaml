@@ -1,4 +1,8 @@
 include: all_lint_rules.yaml
+
+formatter:
+  trailing_commas: preserve
+
 analyzer:
   errors:
     # Otherwise cause the import of all_lint_rules to warn because of some rules conflicts.
@@ -8,9 +12,13 @@ analyzer:
     invalid_annotation_target: false
 
   exclude:
+    - lib/*.g.dart
+    - lib/*.freezed.dart
     - lib/generated_plugin_registrant.dart
-    - lib/**.g.dart
-    - lib/**.freezed.dart
+    - lib/EnvBaseVisitor.dart
+    - lib/EnvLexer.dart
+    - lib/EnvParser.dart
+    - lib/EnvVisitor.dart
     - lib/antlr/**.dart
 
 linter:

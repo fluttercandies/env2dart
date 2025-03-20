@@ -318,8 +318,10 @@ void envgen({
       ]),
   );
   final dartEmitter = DartEmitter(orderDirectives: true);
-  var code = library.accept(dartEmitter).toString();
-  code = DartFormatter(fixes: StyleFix.all).format(code);
+  String code = library.accept(dartEmitter).toString();
+  code = DartFormatter(
+    languageVersion: DartFormatter.latestLanguageVersion,
+  ).format(code);
   output ??= './lib/${clazz.snakeCase}.dart';
   if (!output.endsWith('.dart')) {
     output = '$output.dart';

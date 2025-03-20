@@ -5,7 +5,7 @@ repository: https://github.com/fluttercandies/env2dart
 issue_tracker: https://github.com/fluttercandies/env2dart/issues
 
 environment:
-  sdk: '>=2.15.0 <4.0.0'
+  sdk: ^3.0.0
 
 executables:
   env2dart: env2dart
@@ -17,8 +17,8 @@ dependencies:
   built_value: ^8.4.4
   cbor: ^6.3.5
   code_builder: ^4.4.0
-  collection: '>=1.17.0 <2.0.0'
-  dart_style: ^2.3.0
+  collection: ^1.17.0
+  dart_style: ^3.0.0
   dolumns: ^2.0.0
   path: ^1.8.3
   recase: ^4.1.0

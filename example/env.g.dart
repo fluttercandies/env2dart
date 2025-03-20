@@ -309,10 +309,7 @@ class Env {
   }
 
   @override
-  String toString({
-    int padRight = 19,
-    String separator = ' : ',
-  }) {
+  String toString({int padRight = 19, String separator = ' : '}) {
     final sb = StringBuffer();
     sb.write('INT'.padRight(padRight));
     sb.write(separator);
