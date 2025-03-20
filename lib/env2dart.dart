@@ -215,6 +215,7 @@ void envgen({
       final impls = <Spec>[];
       final extFields = <Field>[];
       Field? activeField;
+      Field? originField;
       for (final entry in entries) {
         _mergeEnv(
           abs,
@@ -242,8 +243,17 @@ void envgen({
               ..name = r'$active'
               ..type = Reference(clazz)
               ..static = true
-              ..docs =
-                  ListBuilder([r'/// [$active] currently active ".env" file.'])
+              ..docs = ListBuilder([
+                r'/// [$active] currently active ".env" file.',
+              ])
+              ..assignment = Code(key),
+          );
+          originField = Field(
+            (b) => b
+              ..name = r'$origin'
+              ..type = Reference(clazz)
+              ..modifier = FieldModifier.final$
+              ..static = true
               ..assignment = Code(key),
           );
         }
@@ -256,6 +266,15 @@ void envgen({
           ..assignment = const Code(r'$'),
       );
       extFields.add(activeField);
+      originField ??= Field(
+        (b) => b
+          ..name = r'$origin'
+          ..type = Reference(clazz)
+          ..modifier = FieldModifier.final$
+          ..static = true
+          ..assignment = const Code(r'$'),
+      );
+      extFields.add(originField);
       final absClass = _toAbs(
         abs,
         othersKey: otherKeys,
@@ -431,7 +450,16 @@ Class _toAbs(
         ...extFields,
         ...fields,
       ])
-      ..methods = ListBuilder([
+      ..methods = ListBuilder<Method>([
+        Method(
+          (b) => b
+            ..name = 'overrode'
+            ..type = MethodType.getter
+            ..static = true
+            ..lambda = true
+            ..body = const Code(r'$active != $origin')
+            ..returns = const Reference('bool'),
+        ),
         ...getters,
         _entriesGetter(kvs),
         Method(

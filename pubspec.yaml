@@ -1,6 +1,6 @@
 name: env2dart
 description: A simple way to generate `dart` code from a `.env` file.
-version: 0.5.0+1
+version: 0.5.1
 repository: https://github.com/fluttercandies/env2dart
 issue_tracker: https://github.com/fluttercandies/env2dart/issues
 

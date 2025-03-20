@@ -1,3 +1,7 @@
+## 0.5.1
+
+- Adds overrode predicate.
+
 ## 0.5.0+1
 
 - Normalize strings when specified encoders.

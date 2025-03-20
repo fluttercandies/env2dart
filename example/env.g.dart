@@ -24,6 +24,8 @@ class Env {
 
   static Env $active = $;
 
+  static final Env $origin = $;
+
   String _INT = '90898';
 
   String _SIGNED_INT = '-8898';
@@ -60,6 +62,8 @@ class Env {
   double? _MNB;
 
   double? _ZXCV;
+
+  static bool get overrode => $active != $origin;
 
   /// From .env
   /// >> INT = 90898
