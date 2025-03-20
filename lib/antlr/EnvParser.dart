@@ -1,4 +1,4 @@
-// Generated from ./antlr/Env.g4 by ANTLR 4.12.0
+// Generated from ./antlr/Env.g4 by ANTLR 4.13.2
 // ignore_for_file: unused_import, unused_local_variable, prefer_single_quotes
 import 'package:antlr4/antlr4.dart';
 
@@ -7,7 +7,7 @@ import 'EnvBaseVisitor.dart';
 const int RULE_env = 0, RULE_line = 1, RULE_key = 2, RULE_value = 3, RULE_comment = 4, 
           RULE_string = 5;
 class EnvParser extends Parser {
-  static final checkVersion = () => RuntimeMetaData.checkVersion('4.12.0', RuntimeMetaData.VERSION);
+  static final checkVersion = () => RuntimeMetaData.checkVersion('4.13.2', RuntimeMetaData.VERSION);
   static const int TOKEN_EOF = IntStream.EOF;
 
   static final List<DFA> _decisionToDFA = List.generate(

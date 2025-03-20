@@ -11,7 +11,7 @@ executables:
   env2dart: env2dart
 
 dependencies:
-  antlr4: ^4.12.0
+  antlr4: ^4.13.2
   args: ^2.4.0
   built_collection: ^5.1.1
   built_value: ^8.4.4
