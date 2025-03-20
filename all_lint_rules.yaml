@@ -69,10 +69,10 @@ linter:
     # [ errors/removed ] Conditions should not unconditionally evaluate to `true` or to `false`.
     # - invariant_booleans
 
-    # [ errors/stable ] Invocation of Iterable<E>.contains with references of unrelated types.
+    # [ errors/deprecated ] Invocation of Iterable<E>.contains with references of unrelated types.
     - iterable_contains_unrelated_type
 
-    # [ errors/stable ] Invocation of `remove` with references of unrelated types.
+    # [ errors/deprecated ] Invocation of `remove` with references of unrelated types.
     - list_remove_unrelated_type
 
     # [ errors/stable ] Boolean expression composed only with literals.
@@ -86,6 +86,12 @@ linter:
 
     # [ errors/stable ] Don't put any logic in createState.
     - no_logic_in_create_state
+
+    # [ errors/stable ] Don't assign a variable to itself.
+    - no_self_assignments
+
+    # [ errors/stable ] Don't use wildcard parameters or variables.
+    - no_wildcard_variable_uses
 
     # [ errors/stable ] Prefer relative imports for files in `lib/`.
     - prefer_relative_imports
@@ -618,7 +624,7 @@ linter:
     # [ style/stable ] Unnecessary toList() in spreads.
     - unnecessary_to_list_in_spreads
 
-    # [ style/experimental ] Unreachable top-level members in executable libraries.
+    # [ style/stable ] Unreachable top-level members in executable libraries.
     - unreachable_from_main
 
     # [ style/stable ] Use `ColoredBox`.
