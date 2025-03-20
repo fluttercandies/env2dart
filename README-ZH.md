@@ -30,7 +30,7 @@ env2dart
 -a, --active    指定要使用的环境变量。例如，如果指定了 `-active prod`，CLI 将查找 .env.prod 文件并将其与 .env 文件合并。
 -c, --class     指定生成类的名称。
                 (默认为 "Env")
--e, --encoder   指定编码以避免存储原始字符串。可使用 `base64` 或者 `utf8`。
+-e, --encoder   指定编码以避免存储原始字符串。可使用 `base64`, `cbor` 或者 `utf8`。
 -h, --help      查看帮助选项。
 ```
 
