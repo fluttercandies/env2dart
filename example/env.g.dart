@@ -26,6 +26,8 @@ class Env {
 
   static final Env $origin = $;
 
+  static final values = List<Env>.from([dev, prod, staging], growable: false);
+
   String _INT = '90898';
 
   String _SIGNED_INT = '-8898';

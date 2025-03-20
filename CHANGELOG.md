@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Adds values getter.
+
 ## 0.5.1
 
 - Adds overrode predicate.

@@ -197,7 +197,7 @@ void envgen({
       if (otherKeys.isNotEmpty && length > 1) {
         final sames = entries[0].value.keys.toSet()..removeAll(exist);
         if (sames.isNotEmpty) {
-          for (var index = 1; index < length; index++) {
+          for (int index = 1; index < length; index++) {
             final e = entries[index].value.keys.toSet()..removeAll(exist);
             if (e.isEmpty) {
               sames.clear();
@@ -214,6 +214,7 @@ void envgen({
       final abs = {...d};
       final impls = <Spec>[];
       final extFields = <Field>[];
+      final keys = <String>[];
       Field? activeField;
       Field? originField;
       for (final entry in entries) {
@@ -225,6 +226,7 @@ void envgen({
         );
         impls.add(_toSubenv(clazz, entry, encoder: encoder));
         final key = entry.key.substring('.env.'.length);
+        keys.add(key);
         final className = '$clazz $key'.pascalCase;
         extFields.add(
           Field(
@@ -275,6 +277,15 @@ void envgen({
           ..assignment = const Code(r'$'),
       );
       extFields.add(originField);
+      extFields.add(
+        Field(
+          (b) => b
+            ..name = 'values'
+            ..modifier = FieldModifier.final$
+            ..static = true
+            ..assignment = Code('List<$clazz>.from($keys, growable: false,)'),
+        ),
+      );
       final absClass = _toAbs(
         abs,
         othersKey: otherKeys,
