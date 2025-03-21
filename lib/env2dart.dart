@@ -236,7 +236,7 @@ void envgen({
               ..static = true
               ..modifier = FieldModifier.final$
               ..docs = ListBuilder(['/// [$key] from ${entry.key}'])
-              ..assignment = Code('$className()'),
+              ..assignment = Code('$className._()'),
           ),
         );
         if (key == active) {
@@ -456,7 +456,7 @@ Class _toAbs(
             ..name = r'$'
             ..static = true
             ..modifier = FieldModifier.final$
-            ..assignment = Code("$name('')")
+            ..assignment = Code("$name._('')")
             ..docs = ListBuilder([r'/// [$] from .env'])
             ..type = Reference(name),
         ),
@@ -531,6 +531,7 @@ Class _toAbs(
       ..constructors = ListBuilder([
         Constructor(
           (b) => b
+            ..name = '_'
             ..requiredParameters = ListBuilder([
               Parameter(
                 (b) => b
@@ -578,9 +579,10 @@ Class _toSubenv(
       ..constructors = ListBuilder([
         Constructor(
           (b) => b
+            ..name = '_'
             ..body = Code(ovcodes.toString())
             ..initializers = ListBuilder(
-              [Code("super('$ek')")],
+              [Code("super._('$ek')")],
             ),
         ),
       ]),
